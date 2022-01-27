@@ -1,0 +1,390 @@
+﻿@charset "utf-8"    ;
+
+.Style
+	{
+     font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', 'DejaVu Sans Condensed', sans-serif;
+     font-size:14px;
+	}
+
+.Etiqueta {
+    font-family: Arial, 'DejaVu Sans', 'Liberation Sans', Freesans, sans-serif; 
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.ListaDesplegable {
+    font-size: 16px;
+    padding: 3px 2px 3px 5px;
+    background: #fff;
+    border: 1px solid #ccc;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    width: 150px;
+}
+
+.ListaDesplegable .marco{
+  width: 140px;
+  background-position:95% center;
+}
+
+.ListaDesplegable .marco select{
+  background: transparent;
+  line-height: 1;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  width: 140px;
+  position: relative;
+  z-index: 5;
+  font-size: 1em;
+}
+
+
+a:focus,
+        a.x-btn:focus,
+        select:focus,
+        input[type="file"]:focus,
+        input[type="radio"]:focus,
+        input[type="submit"]:focus,
+        input[type="checkbox"]:focus,
+        input[type="text"]:focus,
+        input[type="button"]:focus {
+            outline: none !important;
+        }
+
+        select {
+            height: 19px;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            background: rgba(207, 219, 230, 0.3);
+        }
+
+            select:hover {
+                background: rgba(207, 219, 230, 0.45);
+            }
+
+            select:focus {
+                background: rgba(207, 219, 230, 0.45);
+            }
+
+            select:disabled {
+                background: rgba(128, 128, 128, 0.15);
+            }        
+
+        input[type="text"] {
+            height: 19px;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            -moz-transition: ease-in-out, width .35s ease-in-out;
+            -o-transition: ease-in-out, width .35s ease-in-out;
+            -webkit-transition: ease-in-out, width .35s ease-in-out;
+            transition: ease-in-out, width .35s ease-in-out;
+            background: rgba(207, 219, 230, 0.15);
+        }
+
+        input[type=text]:hover {
+            background: rgba(207, 219, 230, 0.25);
+        }
+
+        input[type=text]:focus {
+            background: rgba(207, 219, 230, 0.25);
+        }
+
+        input[type=text]:disabled {
+            background: rgba(128, 128, 128, 0.15);
+        }
+
+        input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        label {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            padding-left: 30px;
+            padding-right: 10px;
+            line-height: 36px;
+            cursor: pointer;
+        }
+
+            label::before {
+                content: " ";
+                position: absolute;
+                top: 6px;
+                left: 0;
+                display: block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #4a4242;
+                -moz-border-radius: 4px;
+                -webkit-border-radius: 4px;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+
+        input[type="radio"] + label::before {
+            -moz-border-radius: 18px;
+            -webkit-border-radius: 18px;
+            border-radius: 18px;
+            color: #74d74b;            
+        }
+
+        /* Checked */
+        input[type="radio"]:checked + label {
+            padding-left: 10px;
+            font-size: 17px;
+            color: #74d74b;            
+        }
+
+            input[type="radio"]:checked + label::before {
+                top: 0;
+                width: 100%;
+                height: 100%;
+                /*background: rgba(178, 13, 19, 0.05);*/
+            }
+
+        /* Transition */
+        label,
+        label::before {
+            -webkit-transition: .25s all ease;
+            -o-transition: .25s all ease;
+            -moz-transition: .25s all ease;
+            transition: .25s all ease;
+        }
+
+        /*GRIDVIEW*/        
+        .myGridStyle {
+         font-size: 12px;
+        }
+
+            .myGridStyle th {
+                border-bottom: 2px solid #797770;
+                font-weight: bold;         
+                font-size: 14px;
+                color:#797770;
+                text-align:center;
+            }
+
+            .myGridStyle td {
+                border-bottom: 1px solid #bbb6a4;                
+            }
+
+        /*POPUP*/
+        .MessageBoxPopupBackground {
+            filter: Alpha(Opacity=40);
+            -moz-opacity: 0.4;
+            opacity: 0.4;
+            width: 100%;
+            height: 100%;
+            background-color: #999999;
+            position: absolute;
+            z-index: 500001;
+            top: 0px;
+            left: 0px;
+        }
+
+        .popupHeader {
+            float: left;
+            width: 420px;
+            font-family: tahoma;
+            font-weight: bold;
+            height: 8px;
+            text-decoration: none;
+            color: #FFFFFF;
+        }
+
+        .popup_button {
+            color: #D0D0D0 !important;
+            font-family: arial, Geneva, sans-serif;
+            font-size: 12px;
+            font-weight: normal;
+            text-decoration: none !important;
+            width: auto;
+            line-height: 18px;
+            padding: 4px 15px 3px 15px;
+        }
+
+ .ajax__fileupload .ajax__fileupload_selectFileContainer {
+            width: 110px;
+        }
+
+        .ajax__fileupload_selectFileContainer .ajax__fileupload_selectFileButton {
+            width: 110px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            background-color: #353535;
+            color: #D0D0D0;
+            cursor: pointer;
+            font-family: Tahoma;
+            font-size: 12px;
+        }
+
+        .ajax__fileupload_selectFileButton:hover {
+            background-color: #525151;
+            color: #D0D0D0;
+        }
+
+        div.ajax__fileupload_topFileStatus {
+            font-family: Tahoma;
+            font-size: 13px;
+            color: #1b1b1b;
+        }
+
+        .ajax__fileupload_ProgressBarHolder {
+            margin-right: 70px;
+            _margin-right: 0;
+        }
+
+        div.ajax__fileupload_progressBar {
+            background-color: rgba(68, 150, 56, 0.45);
+            color: #f7f2f2;
+            font-family: Tahoma;
+            font-size: small;
+            font-weight: bold;
+        }
+
+
+        div.ajax__fileupload_uploadbutton {
+            width: 190px;
+            height: 21px;
+            line-height: 21px;
+            text-align: center;
+            cursor: pointer;
+            font-family: Tahoma;
+            font-size: 12px;
+            font-weight: normal;
+            background-color: #353535;
+            color: #D0D0D0;
+        }
+
+        div.ajax_fileupload_cancelbutton {
+            width: 60px;
+            height: 21px;
+            line-height: 21px;
+            text-align: center;
+            cursor: pointer;
+            font-family: Tahoma;
+            font-size: 12px;
+            font-weight: normal;
+            background-color: #353535;
+            color: #D0D0D0;
+        }
+
+        .ajax__fileupload_dropzone {
+            border-style: dotted;
+            border-width: 1px;
+            line-height: 50px;
+            text-align: center;
+            font-family: Tahoma;
+            font-size: 13px;
+            margin-bottom: 2px;
+            color: #1b1b1b;
+        }
+
+        .ajax__fileupload_queueContainer {
+            border: #A9A9A9 1px solid;
+            margin-top: 2px;
+            padding: 4px;
+            clear: both;
+            font-family: Tahoma;
+            font-size: 11px;
+        }
+
+        .ajax__fileupload_footer {
+            margin-top: 2px;
+            line-height: 20px;
+            height: 20px;
+        }
+
+        .ajax__fileupload_fileItemInfo {
+            line-height: 20px;
+            height: 20px;
+            margin-bottom: 2px;
+            overflow: hidden;
+            color: #262525;
+        }
+
+            .ajax__fileupload_fileItemInfo .filename {
+                font-weight: bold;
+            }
+
+            .ajax__fileupload_fileItemInfo .uploadstatus {
+                font-style: italic;
+                font-weight: bold;
+                color: #449638;
+            }
+
+            .ajax__fileupload_fileItemInfo .removeButton {
+                cursor: pointer;
+                width: 50px;
+                text-align: center;
+                float: left;
+            }
+
+            .ajax__fileupload_fileItemInfo .uploadedState {
+                color: #060;
+                background-color: #fff;
+            }
+
+            .ajax__fileupload_fileItemInfo .uploadingState {
+                color: #FF9900;
+                background-color: #fff;
+            }
+
+            .ajax__fileupload_fileItemInfo .pendingState {
+                color: #009;
+                background-color: #fff;
+            }
+
+            .ajax__fileupload_fileItemInfo .errorState {
+                color: #ffffff;
+                background-color: #ff0000;
+            }
+
+            .ajax__fileupload_fileItemInfo .cancelledState {
+                color: #900;
+                background-color: #fff;
+            }
+
+            .ajax__fileupload_fileItemInfo div {
+                display: inline-block;
+            }
+
+                .ajax__fileupload_fileItemInfo div.removeButton {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 80px;
+                    background-color: white;
+                    color: red;
+                    font-family: Tahoma;
+                    text-decoration: underline;
+                }
+
+        /*Check*/
+        .ajax__fileupload_selectFileContainer {
+            display: inline-block;
+            overflow: hidden;
+            position: relative;
+            width: 80px;
+        }
+
+            .ajax__fileupload_selectFileContainer input {
+                border: medium none;
+                cursor: pointer;
+                height: 40px;
+                margin: 0;
+                opacity: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+            }

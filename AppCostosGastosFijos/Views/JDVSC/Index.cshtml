@@ -1,0 +1,417 @@
+﻿@using AppCostosGastosFijos.Models
+@using Data.Models
+@{
+    Layout = null;
+    ViewBag.Title = "Index";
+    var homeView = ViewBag.homeView != null ? (HomeViewModel)ViewBag.homeView : null;
+    List<ChargeType> chargeTypes = homeView != null
+        ? homeView.ChargeTypes != null && homeView.ChargeTypes.Count > 0 ? homeView.ChargeTypes : null
+        : null;
+    List<UserData> userInformation = ViewBag.userInformation != null ? (List<UserData>)ViewBag.userInformation : null;
+}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+    <title>COSTOS GASTOS FIJOS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Content/css/fontawesome/v5.15/all.css">
+    <link rel="stylesheet" href="~/Content/css/CostosGastos.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" />
+    <link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/css/fileinput.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/themes/explorer/theme.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/js/fileinput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/themes/explorer/theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/js/locales/LANG.js"></script>
+    <script src="~/Scripts/FileInput/locales/es.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+<body>
+    <a href="http://win-kf1kgitmpsp:8019/">
+        <img src="~/Content/images/logoInstitucional.png" alt="Logo institucional" class="logoCompaniaBackBtn" />
+    </a>
+    <div class="container py-5">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs mt-4" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#accountsTab"><i class="fas fa-file-upload"></i> Presupuesto</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#promotoria"><i class="fas fa-file-signature" aria-hidden="true"></i> Promotoria</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#volumen"><i class="fas fa-chart-bar" aria-hidden="true"></i> Volumen</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#menu1"><i class="fas fa-history"></i> Historial cargas</a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+            <!-- Carga Cuentas/Cecos -->
+            <div id="accountsTab" class="container tab-pane active">
+                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "accounts" }, { "homeView", homeView }, { "userInformation", userInformation }, { "includeArea", true }, { "manualBudget", true } })
+
+                @Html.Partial("PartialButtons")
+            </div>
+
+            <!-- Promotoria -->
+            <div id="promotoria" class="container tab-pane fade">
+                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "promotoria" }, { "homeView", homeView } })
+
+                @Html.Partial("PartialButtons")
+            </div>
+
+            <!-- Volumen -->
+            <div id="volumen" class="container tab-pane fade">
+                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "volumen" }, { "homeView", homeView } })
+
+                @Html.Partial("PartialButtons")
+            </div>
+
+            <!-- Historial cargas -->
+            <div id="menu1" class="container tab-pane fade">
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+                    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            HideAlert();
+
+            // Función utilizada para "limpiar" el formulario de carga de archivos.
+            ClearFileArea();
+
+            // Función utilizada para cargar los años en el selector correspondiente.
+            PopulateYears();
+
+            // Actualizar cubo de información.
+            $(".updateCube").off("click").on("click", function () {
+                var btnElement = $(this);
+                var updateCubeUri = $(this).data("update_cube_uri");
+                UpdateCubeCGFijos(btnElement, updateCubeUri);
+            });
+
+            ManualBudget();
+        });
+
+        /**
+         * Función utilizada para ocultar una alerta al dar click en el botón de "X".
+         */
+        function HideAlert() {
+            $("[data-hide]").on("click", function () {
+                $(this).closest("." + $(this).attr("data-hide")).delay(300).fadeOut();
+            });
+        }
+
+        /**
+         * Función utilizada para "limpiar" el formulario de carga de archivos.
+         */
+        function ClearFileArea() {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                FileAllInputs();
+                $(".alert").hide();
+            });
+        }
+
+        /**
+         * Función utilizada para "limpiar" todos los formularios.
+         */
+        function FileAllInputs() {
+            $('#accountsFile').fileinput('clear');
+            $('#volumenFile').fileinput('clear');
+            $('#promotoriaFile').fileinput('clear');
+        }
+
+        /**
+         * Función utilizada para actualizar el cubo de información asociado a los costos/gastos fijos.
+         * @@param btnElement Elemento asociado al botón que dispara la función.
+         * @@param updateCubeUri URL asociada a la actualización del cubo.
+         */
+        function UpdateCubeCGFijos(btnElement, updateCubeUri) {
+            $.ajax({
+                url: updateCubeUri,
+                type: "POST",
+                beforeSend: function () {
+                    BtnLoading(btnElement);
+                },
+                success: function (response) {
+                    var msg = "",
+                        alertClass = "";
+                    if (response !== null) {
+                        if (response.successResponse) {
+                            msg = "Se actualizó correctamente el cubo de información.";
+                            alertClass = "success";
+                        } else if (!response.successResponse) {
+                            msg = "Ocurrió un error al actualizar el cubo de información.";
+                            alertClass = "error";
+                        }
+
+                        swal("", msg, alertClass);
+                    }
+                }
+            }).always(function () {
+                BtnReset(btnElement);
+            });
+        }
+
+        /**
+         * Función utilizada para mostrar el "loader" en un botón.
+         * @@param elem Elemento asociado al botón que dispara la función.
+         * @@param btnText Texto mostrado en el botón.
+         */
+        function BtnLoading(elem, btnText) {
+            btnText = btnText || "Actualizando...";
+            $(elem).attr("data-original-text", $(elem).html());
+            $(elem).prop("disabled", true);
+            $(elem).html('<i class="spinner-border spinner-border-sm"></i> ' + btnText);
+        }
+
+        /**
+         * Función utilizada para reiniciar el texto y estado de un botón.
+         * @@param elem Elemento asociado al botón que dispara la función.
+         */
+        function BtnReset(elem) {
+            $(elem).prop("disabled", false);
+            $(elem).html($(elem).attr("data-original-text"));
+        }
+
+        /**
+         * Función utilizada para cargar la lista de años en los selectores correspondientes.
+         */
+        function PopulateYears() {
+            var currentYear = new Date().getFullYear();
+            for (var i = -1; i < 4; i++) {
+                var yearValue = currentYear + i,
+                    selectedTxt = currentYear === yearValue ? "selected" : "",
+                    yearHtml = '<option ' + selectedTxt + ' value="' + yearValue + '">' + yearValue + '</option>';
+                $(".selectYears").append(yearHtml);
+            }
+        }
+
+        /**
+         * Función en común utilizada para la carga de un archivo, de acuerdo a la sección correspondiente.
+         * @@param chargeInformation Objeto que contiene la información necesaria en la sección para cargar un archivo.
+         */
+        function FileCharge(chargeInformation) {
+            chargeInformation = chargeInformation || null;
+            if (chargeInformation !== null) {
+                var chargeFileInput = chargeInformation.fileInput,
+                    chargeUri = chargeInformation.uri,
+                    yearId = chargeInformation.yearId,
+                    chargeTypeId = chargeInformation.chargeTypeId,
+                    includeArea = chargeInformation.includeArea,
+                    includeChargeTypeName = chargeInformation.includeChargeTypeName;
+                $(chargeFileInput).fileinput({
+                    theme: "explorer",
+                    language: "es",
+                    showClose: false,
+                    allowedFileExtensions: ["xlsx"],
+                    maxFileCount: 1,
+                    browseOnZoneClick: false,
+                    uploadUrl: chargeUri,
+                    uploadAsync: false,
+                    previewFileIcon: '<i class="fas fa-file"></i>',
+                    preferIconicPreview: true,
+                    previewFileIconSettings: {
+                        'doc': '<i class="fas fa-file-word text-primary"></i>',
+                        'xls': '<i class="fas fa-file-excel text-success"></i>',
+                        'ppt': '<i class="fas fa-file-powerpoint text-danger"></i>',
+                        'pdf': '<i class="fas fa-file-pdf text-danger"></i>',
+                        'zip': '<i class="fas fa-file-archive text-muted"></i>',
+                        'htm': '<i class="fas fa-file-code text-info"></i>',
+                        'txt': '<i class="fas fa-file-text text-info"></i>',
+                        'mov': '<i class="fas fa-file-video text-warning"></i>',
+                        'mp3': '<i class="fas fa-file-audio text-warning"></i>',
+                        'jpg': '<i class="fas fa-file-image text-danger"></i>',
+                        'gif': '<i class="fas fa-file-image text-muted"></i>',
+                        'png': '<i class="fas fa-file-image text-primary"></i>'
+                    },
+                    previewFileExtSettings: {
+                        'doc': function (ext) {
+                            return ext.match(/(doc|docx)$/i);
+                        },
+                        'xls': function (ext) {
+                            return ext.match(/(xls|xlsx)$/i);
+                        },
+                        'ppt': function (ext) {
+                            return ext.match(/(ppt|pptx)$/i);
+                        },
+                        'zip': function (ext) {
+                            return ext.match(/(zip|rar|tar|gzip|gz|7z)$/i);
+                        },
+                        'htm': function (ext) {
+                            return ext.match(/(htm|html)$/i);
+                        },
+                        'txt': function (ext) {
+                            return ext.match(/(txt|ini|csv|java|php|js|css)$/i);
+                        },
+                        'mov': function (ext) {
+                            return ext.match(/(avi|mpg|mkv|mov|mp4|3gp|webm|wmv)$/i);
+                        },
+                        'mp3': function (ext) {
+                            return ext.match(/(mp3|wav)$/i);
+                        }
+                    },
+                    fileActionSettings: {
+                        showUpload: false,
+                        showZoom: false
+                    },
+                    uploadExtraData: function () {
+                        var manualBudget = $("#manualBudget").is(":checked");
+                        var obj = {};
+                        obj.yearData = parseInt($(yearId).val());
+                        obj.chargeTypeData = parseInt($(chargeTypeId).val());
+                        if (manualBudget) {
+                            obj.manualBudget = manualBudget;
+                        }
+
+                        if (includeArea) {
+                            obj.areaData = $("#areaData").length > 0 ? parseInt($("#areaData").val()) : 0;
+                        }
+
+                        if (includeChargeTypeName) {
+                            obj.chargeTypeName = $(chargeTypeId).length > 0 ? $(chargeTypeId + " option:selected").text() : "";
+                        }
+
+                        return obj;
+                    }
+                }).on('filebatchuploadsuccess', function (event, data) {
+                    var out = '',
+                        response = data.response;
+                    if (response.successResponse) {
+                        $.each(data.files, function (key, file) {
+                            var fname = file.name;
+                            out = out + fname + ' cargado correctamente.';
+                        });
+                        swal("", out, "success").then(function (result) {
+                            FileAllInputs();
+                        });
+                    } else {
+                        var errorMsg = typeof response.message !== "undefined" && response.message !== "" ? response.message : "Ocurrió un error al cargar la información";
+                        swal("", errorMsg, "error").then(function (result) {
+                            FileAllInputs();
+                        });
+                    }
+
+                    HideAlert();
+                });
+            }
+        }
+
+        /**
+         * Función utilizada para realizar scroll a un elemento específico.
+         * @@param eleId Id asociado al elemento al que se le hará el scroll.
+         */
+        function ScrollToElement(eleId) {
+            $('html, body').animate({
+                scrollTop: $(eleId).offset().top
+            }, 500);
+        }
+
+        /**
+         * Función utilizada para descargar el archivo que contiene la proyección de cada portafolio.
+         * @@param button Botón que ejecuta la acción.
+         */
+        function DownloadProjection(button) {
+            var fileName = "Proyeccion.xlsx",
+                uri = "/JDVSC/DownloadFileProjection",
+                contenType = "application/vnd.ms-excel";
+            BtnLoading(button, "Generando...");
+            $.when(DownloadFile(fileName, uri, contenType)).done(function () {
+                BtnReset(button);
+            });
+        }
+
+        /**
+         * Función en común utilizada para descargar un archivo.
+         * @@param fileName Nombre del archivo.
+         * @@param uri Url desde donde se descargará.
+         * @@param contentType Tipo de contenido del archivo.
+         */
+        function DownloadFile(fileName, uri, contentType) {
+            fileName = fileName || null;
+            if (fileName !== null) {
+                return $.ajax({
+                    type: "POST",
+                    url: uri,
+                    contentType: contentType,
+                    dataType: "json",
+                    success: function (result) {
+                        if (result !== null) {
+
+                            // Convertir el base64 asociado al archivo a un arreglo de bytes.
+                            var bytes = Base64ToBytes(result);
+
+                            // Convertir el arreglo de bytes a un archivo BLOB.
+                            var blob = new Blob([bytes], { type: "application/octetstream" });
+
+                            // Revisar el tipo de navegador y descargar el archivo.
+                            var isIE = false || !!document.documentMode;
+                            if (isIE) {
+                                window.navigator.msSaveBlob(blob, fileName);
+                            } else {
+                                var url = window.URL || window.webkitURL;
+                                link = url.createObjectURL(blob);
+                                var a = $("<a />");
+                                a.attr("download", fileName);
+                                a.attr("href", link);
+                                $("body").append(a);
+                                a[0].click();
+                                $("body").remove(a);
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
+        /**
+         * Función utilizada para convertir una cadena base64 a un arreglo de bytes.
+         * @@param base64 Cadena en base64 que se desea convertir.
+         */
+        function Base64ToBytes(base64) {
+            var s = window.atob(base64);
+            var bytes = new Uint8Array(s.length);
+            for (var i = 0; i < s.length; i++) {
+                bytes[i] = s.charCodeAt(i);
+            }
+
+            return bytes;
+        };
+
+        function ManualBudget() {
+            $('#manualBudget').change(function () {
+                if ($(this).is(":checked")) {
+                    $(this).prop('checked', true);
+                    $('#areaData').prop('disabled', true);
+                    $("#areaData").val($("#areaData option[data-default_area='True']").val());
+                } else {
+                    $(this).prop('checked', false);
+                    $('#areaData').prop('disabled', false);
+                    $("#areaData").val($("#areaData option:first").val());
+                }
+            });
+        }
+    </script>
+</body>
+</html>

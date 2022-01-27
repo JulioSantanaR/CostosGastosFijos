@@ -1,0 +1,93 @@
+﻿@using AppCostosGastosFijos.Models
+@using Data.Models
+@{
+    Layout = null;
+    var homeView = ViewBag.homeView != null ? (HomeViewModel)ViewBag.homeView : null;
+    List<ChargeType> chargeTypes = homeView != null
+        ? homeView.ChargeTypes != null && homeView.ChargeTypes.Count > 0 ? homeView.ChargeTypes : null
+        : null;
+    var fileSection = ViewBag.section != null ? (string)ViewBag.section : string.Empty;
+    List<UserData> userInformation = ViewBag.userInformation != null ? (List<UserData>)ViewBag.userInformation : null;
+    bool includeArea = ViewBag.includeArea != null ? (bool)ViewBag.includeArea : false;
+    bool includeChargeTypeName = ViewBag.includeChargeTypeName != null ? (bool)ViewBag.includeChargeTypeName : true;
+    bool allowManualBudget = ViewBag.manualBudget != null ? (bool)ViewBag.manualBudget : false;
+}
+
+<div id="@string.Format("{0}Tab", fileSection)" class="container tab-pane active">
+    <div class="row py-4 align-items-center">
+        <div class="col-auto">
+            <label for="colFormLabel" class="col-form-label fw-bold">Año</label>
+        </div>
+        <div class="col-auto">
+            <select class="form-select selectYears" id="@string.Format("{0}Year", fileSection)"></select>
+        </div>
+        <div class="col-auto">
+            <label for="colFormLabel" class="col-form-label fw-bold">Tipo de carga</label>
+        </div>
+        <div class="col-auto">
+            <select class="form-select" id="@string.Format("{0}ChargeType", fileSection)">
+                @if (chargeTypes != null && chargeTypes.Count > 0)
+                {
+                    for (int i = 0; i < chargeTypes.Count; i++)
+                    {
+                        var singleChargeType = chargeTypes[i];
+                        <option value="@singleChargeType.ChargeTypeId">@singleChargeType.ChargeTypeName</option>
+                    }
+                }
+
+            </select>
+        </div>
+
+        @if (userInformation != null && userInformation.Count > 0)
+        {
+            <div class="col-auto">
+                <label for="colFormLabel" class="col-form-label fw-bold">Área</label>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" id="areaData">
+                    @if (userInformation != null && userInformation.Count > 0)
+                    {
+                        for (int i = 0; i < userInformation.Count; i++)
+                        {
+                            var singleInfo = userInformation[i];
+                            <option value="@singleInfo.AreaId" data-default_area="@singleInfo.DefaultArea">@singleInfo.NameArea</option>
+                        }
+                    }
+
+                </select>
+            </div>
+        }
+
+        @if (allowManualBudget)
+        {
+            <div class="col-auto form-check">
+                <input class="form-check-input" type="checkbox" value="" id="manualBudget">
+                <label class="form-check-label" for="flexCheckDefault">
+                    Ajuste manual
+                </label>
+            </div>
+        }
+    </div>
+    <div class="file-loading">
+        <input id="@string.Format("{0}File", fileSection)" name="@string.Format("{0}File[]", fileSection)" multiple type="file">
+    </div>
+    <br />
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        var fileSection = "@fileSection",
+            uriAction = "Upload" + fileSection.charAt(0).toUpperCase() + fileSection.slice(1);
+
+        // Función utilizada para cargar el archivo correspondiente.
+        var chargeData = {
+            fileInput: "#" + fileSection + "File",
+            uri: "/JDVSC/" + uriAction,
+            yearId: "#" + fileSection + "Year",
+            chargeTypeId: "#" + fileSection + "ChargeType",
+            includeArea: '@(includeArea)' == "True",
+            includeChargeTypeName: '@(includeChargeTypeName)' == "True"
+        };
+        FileCharge(chargeData);
+    });
+</script>
