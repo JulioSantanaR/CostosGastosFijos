@@ -139,8 +139,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\JDVSCController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -148,11 +149,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap-theme.css" />
-    <Content Include="Content\bootstrap-theme.min.css" />
-    <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\components\navbar\navbar-dropdowns.css" />
+    <Content Include="Content\components\sidebar\sidebar-default.css" />
+    <Content Include="Content\css\bootstrap\bootstrap-select.min.css" />
+    <Content Include="Content\css\bootstrap\bootstrap.min.css" />
     <Content Include="Content\css\CostosGastos.css" />
+    <Content Include="Content\css\dselect\dselect.min.css" />
+    <Content Include="Content\css\FileInput\fileinput.min.css" />
+    <Content Include="Content\css\FileInput\theme.css" />
+    <Content Include="Content\css\master.css" />
     <Content Include="Content\css\estiloBIF.css" />
     <Content Include="Content\css\fontawesome\v5.15\all.css" />
     <Content Include="Content\css\Style.css" />
@@ -165,20 +170,19 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
-    <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="Scripts\areas\areas-datatables.js" />
+    <Content Include="Scripts\areas\areas-gral.js" />
+    <Content Include="Scripts\bootstrap\bootstrap-select.min.js" />
+    <Content Include="Scripts\datatables\datatables.min.js" />
+    <Content Include="Scripts\dselect\dselect.js" />
+    <Content Include="Scripts\FileInput\fileinput.min.js" />
+    <Content Include="Scripts\FileInput\LANG.js" />
     <Content Include="Scripts\FileInput\locales\es.js" />
-    <Content Include="Scripts\jquery-3.4.1.js" />
-    <Content Include="Scripts\jquery-3.4.1.min.js" />
-    <Content Include="Scripts\jquery-3.4.1.slim.js" />
-    <Content Include="Scripts\jquery-3.4.1.slim.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\FileInput\theme.js" />
+    <Content Include="Scripts\users\users-datatables.js" />
+    <Content Include="Scripts\navbarMenu.js" />
+    <Content Include="Scripts\sweetalert.min.js" />
+    <Content Include="Scripts\users\users-gral.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -196,6 +200,9 @@
     <Content Include="Views\JDVSC\Index.cshtml" />
     <Content Include="Views\JDVSC\FileCharge.cshtml" />
     <Content Include="Views\JDVSC\PartialButtons.cshtml" />
+    <Content Include="Views\JDVSC\Colaborador.cshtml" />
+    <Content Include="Views\JDVSC\Administrador.cshtml" />
+    <Content Include="Views\Shared\AdminMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -205,13 +212,19 @@
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Content\bootstrap.min.css.map" />
-    <Content Include="Content\bootstrap.css.map" />
-    <Content Include="Content\bootstrap-theme.min.css.map" />
-    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\css\bootstrap\bootstrap.min.css.map" />
+    <Content Include="Content\font\Lato-Regular.eot" />
+    <Content Include="Content\font\Lato-Regular.ttf" />
+    <Content Include="Content\font\Lato-Regular.woff" />
+    <Content Include="Content\css\dselect\dselect.css.map" />
+    <Content Include="Content\css\bootstrap\bootstrap-select.css.map" />
     <None Include="packages.config" />
-    <Content Include="Scripts\jquery-3.4.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.4.1.min.map" />
+    <Content Include="Views\Users\Index.cshtml" />
+    <Content Include="Views\Users\AddEditUser.cshtml" />
+    <Content Include="Views\Shared\CollaboratorMenu.cshtml" />
+    <Content Include="Views\Areas\Index.cshtml" />
+    <Content Include="Views\Areas\AddEditArea.cshtml" />
+    <Content Include="Scripts\bootstrap\bootstrap-select.min.js.map" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj">

@@ -1,0 +1,103 @@
+﻿@using Data.Models
+@{
+    int? userId = ViewBag.userId != null ? (int?)ViewBag.userId : null;
+    bool existingUser = userId.HasValue && userId.Value > 0;
+    List<UserRole> userRoles = ViewBag.userRoles != null ? (List<UserRole>)ViewBag.userRoles : null;
+    List<AreaData> areas = ViewBag.areas != null ? (List<AreaData>)ViewBag.areas : null;
+    UserData userInformation = ViewBag.userInformation != null ? (UserData)ViewBag.userInformation : new UserData();
+    List<AreaData> userAreas = userInformation != null && userInformation.Areas != null && userInformation.Areas.Count > 0 ? userInformation.Areas : new List<AreaData>();
+    string modalTitle = existingUser ? "Editar usuario" : "Nuevo usuario";
+    string btnTitle = existingUser ? "Editar" : "Guardar";
+}
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">@modalTitle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="userForm">
+                <input type="hidden" id="collaboratorId" value="@userInformation.CollaboratorId" />
+                <div class="mb-3 row">
+                    <label for="collaboratorName" class="col-sm-2 col-form-label">*Nombre</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="collaboratorName" name="collaboratorName" value="@userInformation.CollaboratorName" required>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="collaboratorEmail" class="col-sm-2 col-form-label">*Correo</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="collaboratorEmail" name="collaboratorEmail" value="@userInformation.Email" required>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="collaboratorUsername" class="col-sm-2 col-form-label">*Usuario</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="collaboratorUsername" name="collaboratorUsername" value="@userInformation.Username" required>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="collaboratorRole" class="col-sm-2 col-form-label">Rol</label>
+                    <div class="col-sm-10">
+                        <select class="form-select" id="collaboratorRole" name="collaboratorRole" disabled>
+                            @if (userRoles != null && userRoles.Count > 0)
+                            {
+                                for (int i = 0; i < userRoles.Count; i++)
+                                {
+                                    var singleRole = userRoles[i];
+                                    if (existingUser)
+                                    {
+                                        if (singleRole.RoleId == userInformation.RoleId)
+                                        {
+                                            <option selected value="@singleRole.RoleId">@singleRole.RoleName</option> 
+                                        }
+                                        else
+                                        {
+                                            <option value="@singleRole.RoleId">@singleRole.RoleName</option>
+                                        }
+                                    }
+                                    else if (singleRole.DefaultRole)
+                                    {
+                                        <option selected value="@singleRole.RoleId">@singleRole.RoleName</option> 
+                                    }
+                                    else
+                                    {
+                                        <option value="@singleRole.RoleId">@singleRole.RoleName</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="collaboratorArea" class="col-sm-2 col-form-label">Áreas</label>
+                    <div class="col-sm-10">
+                        <select class="form-select" multiple id="collaboratorArea" name="collaboratorArea">
+                            @if (areas != null && areas.Count > 0)
+                            {
+                                for (int i = 0; i < areas.Count; i++)
+                                {
+                                    var singleArea = areas[i];
+                                    var findUserArea = userAreas.Where(x => x.AreaId == singleArea.AreaId).FirstOrDefault();
+                                    if (findUserArea != null)
+                                    {
+                                        <option value="@singleArea.AreaId" selected>@singleArea.NameArea</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@singleArea.AreaId">@singleArea.NameArea</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary saveUser">@btnTitle</button>
+        </div>
+    </div>
+</div>

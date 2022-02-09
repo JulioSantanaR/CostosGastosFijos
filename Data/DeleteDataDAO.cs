@@ -4,6 +4,7 @@
     using System.Configuration;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Text;
     using Data.Models.Request;
     using Data.Repositories;
 
@@ -228,6 +229,104 @@
                     Close();
                     successDelete = true;
                 }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return successDelete;
+        }
+
+        /// <summary>
+        /// Método utilizado para eliminar la información general asociada a un usuario.
+        /// </summary>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la información se eliminó correctamente.</returns>
+        public bool DeleteUserInformation(int userId)
+        {
+            bool successDelete = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "DELETE [dbo].[Cat_Colaboradores] WHERE cve_Colaborador = @collaboratorId ";
+                sqlcmd.Parameters.AddWithValue("@collaboratorId", userId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successDelete = true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return successDelete;
+        }
+
+        /// <summary>
+        /// Método utilizado para eliminar la relación entre un usuario y la(s) área(s) asociadas a este.
+        /// </summary>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <param name="areaId">Id asociado al área.</param>
+        /// <returns>Devuelve una bandera para determinar si la eliminación de la información fue correcta o no.</returns>
+        public bool DeleteUserAreas(int? userId = null, int? areaId = null)
+        {
+            bool successDelete = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                StringBuilder query = new StringBuilder();
+                query.Append(" DELETE [dbo].[Cat_ColaboradorAreas] WHERE 1 = 1 ");
+                if (userId.HasValue && userId.Value > 0)
+                {
+                    query.Append(" AND cve_Colaborador = @collaboratorId ");
+                    sqlcmd.Parameters.AddWithValue("@collaboratorId", userId);
+                }
+
+                if (areaId.HasValue && areaId.Value > 0)
+                {
+                    query.Append(" AND cve_Area = @areaId ");
+                    sqlcmd.Parameters.AddWithValue("@areaId", areaId.Value);
+                }
+
+                sqlcmd.CommandText = query.ToString();
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successDelete = true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return successDelete;
+        }
+
+        /// <summary>
+        /// Método utilizado para eliminar la información general asociada a un área.
+        /// </summary>
+        /// <param name="areaId">Id asociado al área.</param>
+        /// <returns>Devuelve una bandera para determinar si la información se eliminó correctamente.</returns>
+        public bool DeleteAreaInformation(int areaId)
+        {
+            bool successDelete = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "DELETE [dbo].[Cat_Areas] WHERE cve_Area = @areaId ";
+                sqlcmd.Parameters.AddWithValue("@areaId", areaId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successDelete = true;
             }
             catch (Exception ex)
             {

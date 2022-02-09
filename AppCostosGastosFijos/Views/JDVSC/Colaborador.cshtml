@@ -1,0 +1,27 @@
+﻿@using AppCostosGastosFijos.Models
+@using Data.Models
+@{
+    var homeView = ViewBag.homeView != null ? (HomeViewModel)ViewBag.homeView : null;
+    List<ChargeType> chargeTypes = homeView != null
+        ? homeView.ChargeTypes != null && homeView.ChargeTypes.Count > 0 ? homeView.ChargeTypes : null
+        : null;
+    UserData userInformation = ViewBag.userInformation != null ? (UserData)ViewBag.userInformation : null;
+}
+
+@* Menú de usuario *@
+@Html.Partial("CollaboratorMenu")
+
+<div class="container py-5">
+    <ul class="nav nav-tabs mt-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#accountsTab"><i class="fas fa-file-upload"></i> Presupuesto</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+
+        <!-- Carga Cuentas/Cecos -->
+        <div id="accountsTab" class="container tab-pane active">
+            @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "accounts" }, { "homeView", homeView }, { "userInformation", userInformation }, { "includeArea", true } })
+        </div>
+    </div>
+</div>

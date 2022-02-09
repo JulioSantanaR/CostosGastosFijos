@@ -12,7 +12,6 @@
 
     public class CommonService
     {
-
         /// <summary>
         /// Método utilizado para leer un archivo de excel y convertirlo en un DataTable.
         /// </summary>

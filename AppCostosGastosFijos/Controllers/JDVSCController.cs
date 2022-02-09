@@ -20,7 +20,7 @@
         /// <returns>Devuelve la página principal de la aplicación.</returns>
         public ActionResult Index(string user = "")
         {
-            List<UserData> userInformation = null;
+            UserData userInformation = null;
             HomeViewModel homeView = new HomeViewModel();
             string userName = GetUserInformation(user);
             if (!string.IsNullOrEmpty(userName))
@@ -375,6 +375,15 @@
             }
 
             return userName;
+        }
+
+        /// <summary>
+        /// Método utilizado para mostrar la lista de usuarios dados de alta en la aplicación.
+        /// </summary>
+        /// <returns>Devuelve la vista con la información de los usuarios.</returns>
+        public ActionResult Users()
+        {
+            return View();
         }
     }
 }

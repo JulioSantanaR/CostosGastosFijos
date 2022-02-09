@@ -6,3 +6,11 @@ C:\Users\julio.santana\source\repos\AppCostosGastosFijos\Data\obj\Debug\Data.dll
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\Data\obj\Debug\Data.pdb
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\Data\bin\Debug\FastMember.dll
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\Data\obj\Debug\Data.csproj.CopyComplete
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\obj\Debug\Data.csproj.AssemblyReference.cache
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\obj\Debug\Data.csproj.CoreCompileInputs.cache
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\obj\Debug\Data.dll
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\obj\Debug\Data.pdb
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\bin\Debug\Data.dll
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\bin\Debug\Data.pdb
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\bin\Debug\FastMember.dll
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Data\obj\Debug\Data.csproj.CopyComplete

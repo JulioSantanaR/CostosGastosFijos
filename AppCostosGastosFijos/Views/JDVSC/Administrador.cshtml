@@ -1,0 +1,64 @@
+﻿@using AppCostosGastosFijos.Models
+@using Data.Models
+@{
+    var homeView = ViewBag.homeView != null ? (HomeViewModel)ViewBag.homeView : null;
+    List<ChargeType> chargeTypes = homeView != null
+        ? homeView.ChargeTypes != null && homeView.ChargeTypes.Count > 0 ? homeView.ChargeTypes : null
+        : null;
+    UserData userInformation = ViewBag.userInformation != null ? (UserData)ViewBag.userInformation : null;
+}
+
+@* Menú de usuario *@
+@Html.Partial("AdminMenu")
+
+<div class="container py-5">
+    <ul class="nav nav-tabs mt-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#accountsTab"><i class="fas fa-file-upload"></i> Presupuesto</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#promotoria"><i class="fas fa-file-signature" aria-hidden="true"></i> Promotoria</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#volumen"><i class="fas fa-chart-bar" aria-hidden="true"></i> Volumen</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#menu1"><i class="fas fa-history"></i> Historial cargas</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+
+        <!-- Carga Cuentas/Cecos -->
+        <div id="accountsTab" class="container tab-pane active">
+            @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "accounts" }, { "homeView", homeView }, { "userInformation", userInformation }, { "includeArea", true }, { "manualBudget", true } })
+
+            @Html.Partial("PartialButtons")
+        </div>
+
+        <!-- Promotoria -->
+        <div id="promotoria" class="container tab-pane fade">
+            @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "promotoria" }, { "homeView", homeView } })
+
+            @Html.Partial("PartialButtons")
+        </div>
+
+        <!-- Volumen -->
+        <div id="volumen" class="container tab-pane fade">
+            @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "volumen" }, { "homeView", homeView } })
+
+            @Html.Partial("PartialButtons")
+        </div>
+
+        <!-- Historial cargas -->
+        <div id="menu1" class="container tab-pane fade">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+                cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+        </div>
+    </div>
+</div>

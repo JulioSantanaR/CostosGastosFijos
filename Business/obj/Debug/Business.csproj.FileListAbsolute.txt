@@ -44,3 +44,4 @@ C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Busin
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Business\obj\Debug\Business.csproj.CopyComplete
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Business\obj\Debug\Business.dll
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Business\obj\Debug\Business.pdb
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\Business\bin\Debug\FastMember.dll

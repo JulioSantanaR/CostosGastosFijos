@@ -1,11 +1,15 @@
 ﻿namespace Data
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Text;
+    using Data.Models;
     using Data.Models.Request;
     using Data.Repositories;
+    using FastMember;
 
     /// <summary>
     /// Clase de acceso a datos utilizado para manipular la información dentro de la Base de Datos.
@@ -504,6 +508,149 @@
             }
 
             return successInsert;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la información asociada a un usuario de la aplicación.
+        /// </summary>
+        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
+        /// <returns>Devuelve el id asociado al usuario recién insertado en la Base de Datos.</returns>
+        public int SaveUserInformation(UserData userInformation)
+        {
+            int collaboratorId = 0;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "INSERT INTO [dbo].[Cat_Colaboradores] VALUES (@name, @email, @username, @roleId); SELECT SCOPE_IDENTITY();";
+                sqlcmd.Parameters.AddWithValue("@name", userInformation.CollaboratorName);
+                sqlcmd.Parameters.AddWithValue("@email", userInformation.Email);
+                sqlcmd.Parameters.AddWithValue("@username", userInformation.Username);
+                sqlcmd.Parameters.AddWithValue("@roleId", userInformation.RoleId);
+                collaboratorId = Convert.ToInt32(sqlcmd.ExecuteScalar());
+                Close();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return collaboratorId;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la relación entre un usuario y la(s) área(s) asociadas a este.
+        /// </summary>
+        /// <param name="userAreas">Lista de áreas asociadas a un usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la información fue guardada correctamente.</returns>
+        public bool BulkInsertUserAreas(List<UserAreaRelation> userAreas)
+        {
+            bool successInsert = false;
+            try
+            {
+                Open();
+                SqlConnection connectionData = GetConnection();
+                SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(connectionData)
+                {
+                    DestinationTableName = "[dbo].[Cat_ColaboradorAreas]",
+                    BulkCopyTimeout = 400
+                };
+
+                // Mapear columnas en el archivo hacia la tabla.
+                sqlBulkCopy.ColumnMappings.Add(nameof(UserAreaRelation.UserId), "cve_Colaborador");
+                sqlBulkCopy.ColumnMappings.Add(nameof(UserAreaRelation.AreaId), "cve_Area");
+
+                DataTable table = new DataTable();
+                using (var reader = ObjectReader.Create(userAreas))
+                {
+                    table.Load(reader);
+                }
+
+                sqlBulkCopy.WriteToServer(table);
+                successInsert = true;
+            }
+            catch (Exception ex)
+            {
+                successInsert = false;
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("BulkInsertUserAreas()." + "Error: " + ex.Message);
+            }
+            finally
+            {
+                Close();
+            }
+
+            return successInsert;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la información asociada a un área dentro del catálogo.
+        /// </summary>
+        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
+        /// <returns>Devuelve el id asociado al área recién insertada en la Base de Datos.</returns>
+        public int SaveAreaInformation(AreaData areaInformation)
+        {
+            int collaboratorId = 0;
+            try
+            {
+                if (areaInformation != null)
+                {
+                    Open();
+                    SqlCommand sqlcmd = new SqlCommand();
+                    sqlcmd.Connection = Connection;
+                    sqlcmd.CommandType = CommandType.Text;
+                    sqlcmd.CommandText = "INSERT INTO [dbo].[Cat_Areas] VALUES (@nameArea, @defaultArea); SELECT SCOPE_IDENTITY();";
+                    sqlcmd.Parameters.AddWithValue("@nameArea", areaInformation.NameArea);
+                    sqlcmd.Parameters.AddWithValue("@defaultArea", areaInformation.DefaultArea);
+                    collaboratorId = Convert.ToInt32(sqlcmd.ExecuteScalar());
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return collaboratorId;
+        }
+
+        /// <summary>
+        /// Método utilizado para almacenar un registro en el historial de carga de archivos.
+        /// </summary>
+        /// <param name="fileLogData">Objeto que contiene la información general del archivo que se está cargando.</param>
+        /// <returns>Devuelve el id asociado al historial de carga del archivo que recién fue insertado.</returns>
+        public int SaveFileLog(FileLogData fileLogData)
+        {
+            int fileLogId = 0;
+            try
+            {
+                if (fileLogData != null)
+                {
+                    SqlCommand sqlcmd = new SqlCommand();
+                    StringBuilder query = new StringBuilder();
+                    Open();
+                    sqlcmd.Connection = Connection;
+                    sqlcmd.CommandType = CommandType.Text;
+                    query.Append(" INSERT INTO [dbo].[Tbl_LogArchivos] VALUES (@fileName, @chargeDate, @approvalFlag, @userId, @fileTypeId); ");
+                    query.Append(" SELECT SCOPE_IDENTITY(); ");
+                    sqlcmd.CommandText = query.ToString();
+                    sqlcmd.Parameters.AddWithValue("@fileName", fileLogData.FileName);
+                    sqlcmd.Parameters.AddWithValue("@chargeDate", fileLogData.ChargeDate);
+                    sqlcmd.Parameters.AddWithValue("@approvalFlag", fileLogData.ApprovalFlag);
+                    sqlcmd.Parameters.AddWithValue("@userId", fileLogData.UserId);
+                    sqlcmd.Parameters.AddWithValue("@fileTypeId", fileLogData.FileTypeId);
+                    fileLogId = Convert.ToInt32(sqlcmd.ExecuteScalar());
+                    Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return fileLogId;
         }
 
         /// <summary>

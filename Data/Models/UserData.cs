@@ -1,5 +1,7 @@
 ﻿namespace Data.Models
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Objeto que contiene la información asociada a cada colaborador.
     /// </summary>
@@ -26,18 +28,18 @@
         public string Username { get; set; }
 
         /// <summary>
-        /// Id asociado al área.
+        /// Id asociado al rol de usuario.
         /// </summary>
-        public int AreaId { get; set; }
+        public int RoleId { get; set; }
 
         /// <summary>
-        /// Nombre del área.
+        /// Areas asociadas al usuario.
         /// </summary>
-        public string NameArea { get; set; }
+        public List<AreaData> Areas { get; set; }
 
         /// <summary>
-        /// Bandera para saber si es un área default.
+        /// Nombre asociado al rol del usuario.
         /// </summary>
-        public bool DefaultArea { get; set; }
+        public string RolUsuario { get; set; }
     }
 }

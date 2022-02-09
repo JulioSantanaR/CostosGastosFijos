@@ -192,3 +192,4 @@ C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\AppCo
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\AppCostosGastosFijos\obj\Debug\AppCostosGastosFijos.csproj.CopyComplete
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\AppCostosGastosFijos\obj\Debug\AppCostosGastosFijos.dll
 C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\AppCostosGastosFijos\obj\Debug\AppCostosGastosFijos.pdb
+C:\Users\julio.santana\source\repos\AppCostosGastosFijos\CostosGastosFijos\AppCostosGastosFijos\bin\FastMember.dll

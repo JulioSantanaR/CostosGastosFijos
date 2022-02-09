@@ -4,6 +4,7 @@
     using System.Configuration;
     using System.Data;
     using System.Data.SqlClient;
+    using Data.Models;
     using Data.Models.Request;
     using Data.Repositories;
 
@@ -120,6 +121,68 @@
                 successUpdate = false;
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("UpdateFactProjection()." + "Error: " + ex.Message);
+            }
+
+            return successUpdate;
+        }
+
+        /// <summary>
+        /// Método utilizado para actualizar la información asociada a un usuario de la aplicación.
+        /// </summary>
+        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
+        public bool UpdateUserInformation(UserData userInformation)
+        {
+            bool successUpdate = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "UPDATE [dbo].[Cat_Colaboradores] SET nombre = @name, correo = @email, usuario = @username, cve_RolUsuario = @role WHERE cve_Colaborador = @userId ";
+                sqlcmd.Parameters.AddWithValue("@name", userInformation.CollaboratorName);
+                sqlcmd.Parameters.AddWithValue("@email", userInformation.Email);
+                sqlcmd.Parameters.AddWithValue("@username", userInformation.Username);
+                sqlcmd.Parameters.AddWithValue("@role", userInformation.RoleId);
+                sqlcmd.Parameters.AddWithValue("@userId", userInformation.CollaboratorId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successUpdate = true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return successUpdate;
+        }
+
+        /// <summary>
+        /// Método utilizado para actualizar la información asociada a un área en el catálogo de la aplicación.
+        /// </summary>
+        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
+        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
+        public bool UpdateAreaInformation(AreaData areaInformation)
+        {
+            bool successUpdate = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "UPDATE [dbo].[Cat_Areas] SET nombre = @name, defaultArea = @defaultArea WHERE cve_Area = @areaId ";
+                sqlcmd.Parameters.AddWithValue("@name", areaInformation.NameArea);
+                sqlcmd.Parameters.AddWithValue("@defaultArea", areaInformation.DefaultArea);
+                sqlcmd.Parameters.AddWithValue("@areaId", areaInformation.AreaId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successUpdate = true;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
 
             return successUpdate;

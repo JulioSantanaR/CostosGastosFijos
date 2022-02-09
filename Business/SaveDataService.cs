@@ -256,7 +256,7 @@
                     {
                         var fileData = accountsTable.Tables[0];
                         List<PromotoriaFile> promotoriaFromFile = PromotoriaFileMapping(fileData);
-                        int firstMonth = 1;
+                        int firstMonth = 0;
                         int lastMonth = 12;
                         int errorsCount = 0;
                         string monthsErrors = string.Empty;
@@ -367,6 +367,87 @@
                                                            Diciembre = rw["Diciembre"] != DBNull.Value ? Convert.ToDouble(rw["Diciembre"]) : default(double),
                                                        }).ToList();
             return promotoriaFromFile;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la información asociada a un usuario de la aplicación.
+        /// </summary>
+        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
+        /// <returns>Devuelve el id asociado al usuario recién insertado en la Base de Datos.</returns>
+        public static int SaveUserInformation(UserData userInformation)
+        {
+            int collaboratorId = 0;
+            try
+            {
+                SaveDataDAO connection = new SaveDataDAO();
+                collaboratorId = connection.SaveUserInformation(userInformation);
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("SaveUserInformation()." + "Error: " + ex.Message);
+            }
+
+            return collaboratorId;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la relación entre un usuario y la(s) área(s) asociadas a este.
+        /// </summary>
+        /// <param name="userAreas">Lista de áreas asociadas a un usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la información fue guardada correctamente.</returns>
+        public static bool BulkInsertUserAreas(List<int> areas, int userId)
+        {
+            bool successInsert = false;
+            try
+            {
+                List<UserAreaRelation> userAreas = new List<UserAreaRelation>();
+                if (areas != null && areas.Count > 0)
+                {
+                    for (int i = 0; i < areas.Count; i++)
+                    {
+                        UserAreaRelation singleUserArea = new UserAreaRelation();
+                        singleUserArea.AreaId = areas[i];
+                        singleUserArea.UserId = userId;
+                        userAreas.Add(singleUserArea);
+                    }
+                }
+
+                if (userAreas != null && userAreas.Count > 0)
+                {
+                    SaveDataDAO connection = new SaveDataDAO();
+                    successInsert = connection.BulkInsertUserAreas(userAreas);
+                }
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("BulkInsertUserAreas()." + "Error: " + ex.Message);
+            }
+
+            return successInsert;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la información asociada a un área dentro del catálogo.
+        /// </summary>
+        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
+        /// <returns>Devuelve el id asociado al área recién insertada en la Base de Datos.</returns>
+        public static int SaveAreaInformation(AreaData areaInformation)
+        {
+            int areaId = 0;
+            try
+            {
+                SaveDataDAO connection = new SaveDataDAO();
+                areaId = connection.SaveAreaInformation(areaInformation);
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("SaveAreaInformation()." + "Error: " + ex.Message);
+            }
+
+            return areaId;
         }
     }
 }

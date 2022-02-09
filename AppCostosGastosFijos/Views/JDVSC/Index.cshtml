@@ -1,101 +1,23 @@
-﻿@using AppCostosGastosFijos.Models
-@using Data.Models
+﻿@using Data.Models
 @{
-    Layout = null;
-    ViewBag.Title = "Index";
-    var homeView = ViewBag.homeView != null ? (HomeViewModel)ViewBag.homeView : null;
-    List<ChargeType> chargeTypes = homeView != null
-        ? homeView.ChargeTypes != null && homeView.ChargeTypes.Count > 0 ? homeView.ChargeTypes : null
-        : null;
-    List<UserData> userInformation = ViewBag.userInformation != null ? (List<UserData>)ViewBag.userInformation : null;
+    UserData userInformation = ViewBag.userInformation != null ? (UserData)ViewBag.userInformation : null;
+    bool administradorFlag = userInformation != null && !string.IsNullOrEmpty(userInformation.RolUsuario) && userInformation.RolUsuario.ToLower().Equals("administrador");
 }
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
-<head>
-    <title>COSTOS GASTOS FIJOS</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="~/Content/css/fontawesome/v5.15/all.css">
-    <link rel="stylesheet" href="~/Content/css/CostosGastos.css">
-    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+@if (administradorFlag)
+{
+    @Html.Partial("Administrador")
+}
+else
+{
+    @Html.Partial("Colaborador")
+}
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" />
-    <link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/css/fileinput.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/themes/explorer/theme.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/js/fileinput.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/themes/explorer/theme.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.2/js/locales/LANG.js"></script>
-    <script src="~/Scripts/FileInput/locales/es.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-</head>
-<body>
-    <a href="http://win-kf1kgitmpsp:8019/">
-        <img src="~/Content/images/logoInstitucional.png" alt="Logo institucional" class="logoCompaniaBackBtn" />
-    </a>
-    <div class="container py-5">
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs mt-4" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#accountsTab"><i class="fas fa-file-upload"></i> Presupuesto</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#promotoria"><i class="fas fa-file-signature" aria-hidden="true"></i> Promotoria</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#volumen"><i class="fas fa-chart-bar" aria-hidden="true"></i> Volumen</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#menu1"><i class="fas fa-history"></i> Historial cargas</a>
-            </li>
-        </ul>
-        <!-- Tab panes -->
-        <div class="tab-content">
-
-            <!-- Carga Cuentas/Cecos -->
-            <div id="accountsTab" class="container tab-pane active">
-                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "accounts" }, { "homeView", homeView }, { "userInformation", userInformation }, { "includeArea", true }, { "manualBudget", true } })
-
-                @Html.Partial("PartialButtons")
-            </div>
-
-            <!-- Promotoria -->
-            <div id="promotoria" class="container tab-pane fade">
-                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "promotoria" }, { "homeView", homeView } })
-
-                @Html.Partial("PartialButtons")
-            </div>
-
-            <!-- Volumen -->
-            <div id="volumen" class="container tab-pane fade">
-                @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "volumen" }, { "homeView", homeView } })
-
-                @Html.Partial("PartialButtons")
-            </div>
-
-            <!-- Historial cargas -->
-            <div id="menu1" class="container tab-pane fade">
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                    consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-            </div>
-        </div>
-    </div>
-
+@section scripts {
     <script>
         $(function () {
+            $(".indexMenu").addClass("active");
+
             HideAlert();
 
             // Función utilizada para "limpiar" el formulario de carga de archivos.
@@ -413,5 +335,4 @@
             });
         }
     </script>
-</body>
-</html>
+}
