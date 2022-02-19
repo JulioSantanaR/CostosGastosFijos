@@ -58,5 +58,64 @@
             areaInformation.DefaultArea = reader["defaultArea"] != DBNull.Value ? Convert.ToBoolean(reader["defaultArea"]) : false;
             return areaInformation;
         }
+
+        /// <summary>
+        /// Método utilizado para mapear la información relacionada al historial de carga de archivos.
+        /// </summary>
+        /// <param name="reader">Información obtenida desde la Base de datos.</param>
+        /// <param name="typeFileExists">Bandera para saber si mapear la columna de tipo de archivo o no.</param>
+        /// <param name="collaboratorNameExists">Bandera para saber si mapear la columna asociada al nombre del colaborador.</param>
+        /// <param name="areaNameExists">Bandera para saber si mapear la columna asociada al nombre del área.</param>
+        /// <param name="chargeTypeExists">Bandera para saber si mapear la columna asociada al tipo de carga.</param>
+        /// <returns>Devuelve la información asociada al historial de carga de archivos.</returns>
+        public static FileLogData MapFileLog(SqlDataReader reader, bool typeFileExists = false, bool collaboratorNameExists = false, bool areaNameExists = false, bool chargeTypeExists = false)
+        {
+            FileLogData logInformation = new FileLogData();
+            logInformation.FileLogId = reader["cve_LogArchivo"] != DBNull.Value ? Convert.ToInt32(reader["cve_LogArchivo"]) : 0;
+            logInformation.FileName = reader["nombreArchivo"] != DBNull.Value ? reader["nombreArchivo"].ToString() : string.Empty;
+            logInformation.ChargeDate = reader["fechaDeCarga"] != DBNull.Value ? Convert.ToDateTime(reader["fechaDeCarga"]) : DateTime.MinValue;
+            logInformation.ApprovalFlag = reader["aprobado"] != DBNull.Value ? Convert.ToBoolean(reader["aprobado"]) : false;
+            logInformation.UserId = reader["cve_Colaborador"] != DBNull.Value ? Convert.ToInt32(reader["cve_Colaborador"]) : 0;
+            logInformation.FileTypeId = reader["cve_TipoArchivo"] != DBNull.Value ? Convert.ToInt32(reader["cve_TipoArchivo"]) : 0;
+            logInformation.AreaId = reader["cve_Area"] != DBNull.Value ? Convert.ToInt32(reader["cve_Area"]) : 0;
+            logInformation.ChargeTypeId = reader["cve_TipoCarga"] != DBNull.Value ? Convert.ToInt32(reader["cve_TipoCarga"]) : 0;
+            logInformation.YearData = reader["anio"] != DBNull.Value ? Convert.ToInt32(reader["anio"]) : 0;
+            if (typeFileExists)
+            {
+                logInformation.FileTypeName = reader["tipoArchivo"] != DBNull.Value ? reader["tipoArchivo"].ToString() : string.Empty;
+            }
+
+            if (collaboratorNameExists)
+            {
+                logInformation.CollaboratorName = reader["nombreColaborador"] != DBNull.Value ? reader["nombreColaborador"].ToString() : string.Empty;
+            }
+
+            if (areaNameExists)
+            {
+                logInformation.AreaName = reader["nombreArea"] != DBNull.Value ? reader["nombreArea"].ToString() : string.Empty;
+            }
+
+            if (chargeTypeExists)
+            {
+                logInformation.ChargeTypeName = reader["tipoCarga"] != DBNull.Value ? reader["tipoCarga"].ToString() : string.Empty;
+            }
+
+            return logInformation;
+        }
+
+        /// <summary>
+        /// Método utilizado para mapear la información relacionada con el catálogo de tipos de archivos.
+        /// </summary>
+        /// <param name="reader">Información obtenida desde la Base de datos.</param>
+        /// <returns>Devuelve la información asociada al catálogo de tipos de archivos.</returns>
+        public static FileType MapFileType(SqlDataReader reader)
+        {
+            FileType fileType = new FileType()
+            {
+                FileTypeId = reader["cve_TipoArchivo"] != DBNull.Value ? Convert.ToInt32(reader["cve_TipoArchivo"]) : 0,
+                FileTypeName = reader["tipoArchivo"] != DBNull.Value ? reader["tipoArchivo"].ToString() : string.Empty,
+            };
+            return fileType;
+        }
     }
 }

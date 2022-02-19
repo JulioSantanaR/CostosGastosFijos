@@ -140,11 +140,13 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AreasController.cs" />
+    <Compile Include="Controllers\FileLogController.cs" />
     <Compile Include="Controllers\JDVSCController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\FileLogViewModel.cs" />
     <Compile Include="Models\HomeViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -154,11 +156,17 @@
     <Content Include="Content\css\bootstrap\bootstrap-select.min.css" />
     <Content Include="Content\css\bootstrap\bootstrap.min.css" />
     <Content Include="Content\css\CostosGastos.css" />
+    <Content Include="Content\css\datatables.min.css" />
     <Content Include="Content\css\dselect\dselect.min.css" />
     <Content Include="Content\css\FileInput\fileinput.min.css" />
     <Content Include="Content\css\FileInput\theme.css" />
+    <Content Include="Content\css\fontawesome\v5.15.3\all.css" />
+    <Content Include="Content\css\fontawesome\v5.15.4\all.min.css" />
+    <Content Include="Content\css\fontawesome\webfonts\fa-solid-900.svg" />
+    <Content Include="Content\css\img\loading-sm.gif" />
+    <Content Include="Content\css\img\loading.gif" />
+    <Content Include="Content\css\loader\jquery.loadingModal.css" />
     <Content Include="Content\css\master.css" />
-    <Content Include="Content\css\estiloBIF.css" />
     <Content Include="Content\css\fontawesome\v5.15\all.css" />
     <Content Include="Content\css\Style.css" />
     <Content Include="Content\images\CGFijos.jpg" />
@@ -179,6 +187,9 @@
     <Content Include="Scripts\FileInput\LANG.js" />
     <Content Include="Scripts\FileInput\locales\es.js" />
     <Content Include="Scripts\FileInput\theme.js" />
+    <Content Include="Scripts\fileLog\log-datatables.js" />
+    <Content Include="Scripts\fileLog\log-gral.js" />
+    <Content Include="Scripts\loader\jquery.loadingModal.js" />
     <Content Include="Scripts\users\users-datatables.js" />
     <Content Include="Scripts\navbarMenu.js" />
     <Content Include="Scripts\sweetalert.min.js" />
@@ -218,6 +229,9 @@
     <Content Include="Content\font\Lato-Regular.woff" />
     <Content Include="Content\css\dselect\dselect.css.map" />
     <Content Include="Content\css\bootstrap\bootstrap-select.css.map" />
+    <Content Include="Content\css\fontawesome\webfonts\fa-solid-900.ttf" />
+    <Content Include="Content\css\fontawesome\webfonts\fa-solid-900.woff" />
+    <Content Include="Content\css\fontawesome\webfonts\fa-solid-900.woff2" />
     <None Include="packages.config" />
     <Content Include="Views\Users\Index.cshtml" />
     <Content Include="Views\Users\AddEditUser.cshtml" />
@@ -225,6 +239,7 @@
     <Content Include="Views\Areas\Index.cshtml" />
     <Content Include="Views\Areas\AddEditArea.cshtml" />
     <Content Include="Scripts\bootstrap\bootstrap-select.min.js.map" />
+    <Content Include="Views\FileLog\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj">

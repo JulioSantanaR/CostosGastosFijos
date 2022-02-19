@@ -5,8 +5,7 @@
     using System.Data;
     using System.IO;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using Business.Services;
     using ClosedXML.Excel;
     using Data;
     using Data.Models;
@@ -187,7 +186,7 @@
                         bool allAreasFlag = userInformation.Areas.Any(x => x.AreaId == 0);
                         if (allAreasFlag)
                         {
-                            userInformation.Areas = connection.GetAllAreas();
+                            userInformation.Areas = AreasService.GetAllAreas();
                         }
                     }
                 }
@@ -197,27 +196,6 @@
             }
 
             return userInformation;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar la información de la promotoría de acuerdo a un año y tipo de ejercicio específicos.
-        /// </summary>
-        /// <param name="yearData">Año del ejercicio.</param>
-        /// <param name="chargeTypeData">Tipo de ejercicio.</param>
-        /// <returns>Devuelve la información asociada al detalle del presupuesto correspondiente a la promotoría.</returns>
-        public static List<PromotoriaDB> GetPromotoria(int yearData, int chargeTypeData)
-        {
-            List<PromotoriaDB> promotoria = new List<PromotoriaDB>();
-            try
-            {
-                ReadDataDAO connection = new ReadDataDAO();
-                promotoria = connection.GetPromotoria(yearData, chargeTypeData);
-            }
-            catch (Exception ex)
-            {
-            }
-
-            return promotoria;
         }
 
         /// <summary>
@@ -260,50 +238,6 @@
             }
 
             return usersTable;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar la información que será mostrada en la tabla del catálogo de áreas.
-        /// </summary>
-        /// <param name="dataTableInfo">Objeto que contiene los parámetros de búsqueda para la tabla de áreas.</param>
-        /// <returns>Devuelve un objeto que contiene la información necesaria para mostrar la tabla de áreas.</returns>
-        public static AreasTableResponse GetAreasTable(DataTableRequest dataTableInfo)
-        {
-            AreasTableResponse areasTable = null;
-            try
-            {
-                ReadDataDAO connection = new ReadDataDAO();
-                areasTable = connection.GetAreasTable(dataTableInfo);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("GetAreasTable()." + "Error: " + ex.Message);
-            }
-
-            return areasTable;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar todo el catálogo de áreas.
-        /// </summary>
-        /// <param name="includeAllAreas">Bandera para saber si incluir "Todas las áreas" en la consulta.</param>
-        /// <returns>Devuelve la lista de todas las áreas dadas de alta en el catálogo.</returns>
-        public static List<AreaData> GetAllAreas(bool includeAllAreas = false)
-        {
-            List<AreaData> areas = null;
-            try
-            {
-                ReadDataDAO connection = new ReadDataDAO();
-                areas = connection.GetAllAreas(includeAllAreas);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("GetAllAreas()." + "Error: " + ex.Message);
-            }
-
-            return areas;
         }
 
         /// <summary>
@@ -359,28 +293,6 @@
             }
 
             return userInformation;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar la información de un área de acuerdo al id asociado a esta.
-        /// </summary>
-        /// <param name="areaId">Id asociado al área.</param>
-        /// <returns>Devuelve la información general del área.</returns>
-        public static AreaData GetAreaById(int areaId)
-        {
-            AreaData areaInformation = null;
-            try
-            {
-                ReadDataDAO connection = new ReadDataDAO();
-                areaInformation = connection.GetAreaById(areaId);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("GetAreaById()." + "Error: " + ex.Message);
-            }
-
-            return areaInformation;
         }
     }
 }

@@ -1,43 +1,39 @@
 ﻿<!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <title>COSTOS GASTOS FIJOS</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/Content/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Content/css/fontawesome/v5.15.4/all.min.css">
+    <link rel="stylesheet" href="~/Content/css/CostosGastos.css">
+    <link rel="stylesheet" href="~/Content/css/loader/jquery.loadingModal.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" />
+    <link href="~/Content/css/FileInput/fileinput.min.css" rel="stylesheet">
+    <link href="~/Content/css/FileInput/theme.css" rel="stylesheet">
+
+    <link href="~/Content/css/datatables.min.css" rel="stylesheet" />
+    <link href="~/Content/css/master.css" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script src="~/Scripts/FileInput/fileinput.min.js"></script>
+    <script src="~/Scripts/FileInput/theme.js"></script>
+    <script src="~/Scripts/FileInput/LANG.js"></script>
+    <script src="~/Scripts/FileInput/locales/es.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+    <script src="~/Scripts/datatables/datatables.min.js"></script>
+    <script src="~/Scripts/loader/jquery.loadingModal.js"></script>
+    <script src="https://unpkg.com/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("styles", required: false)
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-                    <li>@Html.ActionLink("Costos Gastos fijos", "Index", "JDVSC")</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    @RenderBody()
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
 </body>
 </html>

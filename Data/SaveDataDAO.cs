@@ -53,10 +53,12 @@
                     DataTableAddColumn(accountsData.FileData, "cve_TipoCarga", accountsData.ChargeTypeAccounts);
                     DataTableAddColumn(accountsData.FileData, "cve_Colaborador", accountsData.Collaborator);
                     DataTableAddColumn(accountsData.FileData, "cve_Area", accountsData.Area);
+                    DataTableAddColumn(accountsData.FileData, "cve_LogArchivo", accountsData.FileLogId);
                     sqlBulkCopy.ColumnMappings.Add("anio", "anio");
                     sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
                     sqlBulkCopy.ColumnMappings.Add("cve_Colaborador", "cve_Colaborador");
                     sqlBulkCopy.ColumnMappings.Add("cve_Area", "cve_Area");
+                    sqlBulkCopy.ColumnMappings.Add("cve_LogArchivo", "cve_LogArchivo");
 
                     // Mapear columnas en el archivo hacia la tabla.
                     sqlBulkCopy.ColumnMappings.Add("Tipo de Gestion", "tipoGestion");
@@ -162,8 +164,9 @@
         /// <param name="volumeTable">Objeto que contiene la información de la base del volumen.</param>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
+        /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public bool BulkInsertVolumen(DataTable volumeTable, int yearData, int chargeTypeData)
+        public bool BulkInsertVolumen(DataTable volumeTable, int yearData, int chargeTypeData, int fileLogId)
         {
             bool successInsert = false;
             try
@@ -179,6 +182,7 @@
                 // Agregar columnas pendientes.
                 DataTableAddColumn(volumeTable, "anio", yearData);
                 DataTableAddColumn(volumeTable, "cve_TipoCarga", chargeTypeData);
+                DataTableAddColumn(volumeTable, "cve_LogArchivo", fileLogId);
 
                 // Mapear columnas en el archivo hacia la tabla.
                 sqlBulkCopy.ColumnMappings.Add("Canal", "canal");
@@ -203,6 +207,7 @@
                 sqlBulkCopy.ColumnMappings.Add("Diciembre", "diciembre");
                 sqlBulkCopy.ColumnMappings.Add("anio", "anio");
                 sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
+                sqlBulkCopy.ColumnMappings.Add("cve_LogArchivo", "cve_LogArchivo");
 
                 sqlBulkCopy.WriteToServer(volumeTable);
                 successInsert = true;
@@ -227,8 +232,9 @@
         /// <param name="volumeTable">Objeto que contiene la información de la base del volumen.</param>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
+        /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public bool BulkInsertVolumenBP(DataTable volumeTable, int yearData, int chargeTypeData)
+        public bool BulkInsertVolumenBP(DataTable volumeTable, int yearData, int chargeTypeData, int fileLogId)
         {
             bool successInsert = false;
             try
@@ -244,6 +250,7 @@
                 // Agregar columnas pendientes.
                 DataTableAddColumn(volumeTable, "anio", yearData);
                 DataTableAddColumn(volumeTable, "cve_TipoCarga", chargeTypeData);
+                DataTableAddColumn(volumeTable, "cve_LogArchivo", fileLogId);
 
                 // Mapear columnas en el archivo hacia la tabla.
                 sqlBulkCopy.ColumnMappings.Add("Key Tiendas", "keyTiendas");
@@ -278,6 +285,7 @@
                 sqlBulkCopy.ColumnMappings.Add("Diciembre Ingresos", "diciembreIngresos");
                 sqlBulkCopy.ColumnMappings.Add("anio", "anio");
                 sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
+                sqlBulkCopy.ColumnMappings.Add("cve_LogArchivo", "cve_LogArchivo");
 
                 sqlBulkCopy.WriteToServer(volumeTable);
                 successInsert = true;
@@ -287,68 +295,6 @@
                 successInsert = false;
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("BulkInsertVolumen()." + "Error: " + ex.Message);
-            }
-            finally
-            {
-                Close();
-            }
-
-            return successInsert;
-        }
-
-        /// <summary>
-        /// Método utilizado para guardar la base asociada a la promotoria de cada portafolio.
-        /// </summary>
-        /// <param name="promotoriaTable">Objeto que contiene la información de la base de la promotoria.</param>
-        /// <param name="yearData">Año de carga.</param>
-        /// <param name="chargeTypeData">Tipo de carga.</param>
-        /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public bool BulkInsertPromotoria(DataTable promotoriaTable, int yearData, int chargeTypeData)
-        {
-            bool successInsert = false;
-            try
-            {
-                Open();
-                SqlConnection connectionData = GetConnection();
-                SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(connectionData)
-                {
-                    DestinationTableName = "[dbo].[Tbl_Promotoria]",
-                    BulkCopyTimeout = 400
-                };
-
-                // Agregar columnas pendientes.
-                DataTableAddColumn(promotoriaTable, "anio", yearData);
-                DataTableAddColumn(promotoriaTable, "cve_TipoCarga", chargeTypeData);
-
-                // Mapear columnas en el archivo hacia la tabla.
-                sqlBulkCopy.ColumnMappings.Add("Cadena Agrupada", "cadenaAgrupada");
-                sqlBulkCopy.ColumnMappings.Add("Formato Cadena", "formatoCadena");
-                sqlBulkCopy.ColumnMappings.Add("Cuenta", "cuenta");
-                sqlBulkCopy.ColumnMappings.Add("Centro de Costo", "centroDeCosto");
-                sqlBulkCopy.ColumnMappings.Add("Enero", "enero");
-                sqlBulkCopy.ColumnMappings.Add("Febrero", "febrero");
-                sqlBulkCopy.ColumnMappings.Add("Marzo", "marzo");
-                sqlBulkCopy.ColumnMappings.Add("Abril", "abril");
-                sqlBulkCopy.ColumnMappings.Add("Mayo", "mayo");
-                sqlBulkCopy.ColumnMappings.Add("Junio", "junio");
-                sqlBulkCopy.ColumnMappings.Add("Julio", "julio");
-                sqlBulkCopy.ColumnMappings.Add("Agosto", "agosto");
-                sqlBulkCopy.ColumnMappings.Add("Septiembre", "septiembre");
-                sqlBulkCopy.ColumnMappings.Add("Octubre", "octubre");
-                sqlBulkCopy.ColumnMappings.Add("Noviembre", "noviembre");
-                sqlBulkCopy.ColumnMappings.Add("Diciembre", "diciembre");
-                sqlBulkCopy.ColumnMappings.Add("Total", "total");
-                sqlBulkCopy.ColumnMappings.Add("anio", "anio");
-                sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
-
-                sqlBulkCopy.WriteToServer(promotoriaTable);
-                successInsert = true;
-            }
-            catch (Exception ex)
-            {
-                successInsert = false;
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertPromotoria()." + "Error: " + ex.Message);
             }
             finally
             {
@@ -382,10 +328,12 @@
                     DataTableAddColumn(accountsData.FileData, "cve_TipoCarga", accountsData.ChargeTypeAccounts);
                     DataTableAddColumn(accountsData.FileData, "cve_Colaborador", accountsData.Collaborator);
                     DataTableAddColumn(accountsData.FileData, "cve_Area", accountsData.Area);
+                    DataTableAddColumn(accountsData.FileData, "cve_LogArchivo", accountsData.FileLogId);
                     sqlBulkCopy.ColumnMappings.Add("anio", "anio");
                     sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
                     sqlBulkCopy.ColumnMappings.Add("cve_Colaborador", "cve_Colaborador");
                     sqlBulkCopy.ColumnMappings.Add("cve_Area", "cve_Area");
+                    sqlBulkCopy.ColumnMappings.Add("cve_LogArchivo", "cve_LogArchivo");
 
                     // Mapear columnas en el archivo hacia la tabla.
                     sqlBulkCopy.ColumnMappings.Add("Tipo de Gestion", "tipoGestion");
@@ -494,6 +442,7 @@
                     sqlcmd.Parameters.AddWithValue("@tipo_carga", accountsData.ChargeTypeAccounts);
                     sqlcmd.Parameters.AddWithValue("@colaborador", accountsData.Collaborator);
                     sqlcmd.Parameters.AddWithValue("@area", accountsData.Area);
+                    sqlcmd.Parameters.AddWithValue("@logArchivo", accountsData.FileLogId);
                     sqlcmd.CommandTimeout = 3600;
                     sqlcmd.ExecuteNonQuery();
                     Close();
@@ -583,95 +532,6 @@
             }
 
             return successInsert;
-        }
-
-        /// <summary>
-        /// Método utilizado para guardar la información asociada a un área dentro del catálogo.
-        /// </summary>
-        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
-        /// <returns>Devuelve el id asociado al área recién insertada en la Base de Datos.</returns>
-        public int SaveAreaInformation(AreaData areaInformation)
-        {
-            int collaboratorId = 0;
-            try
-            {
-                if (areaInformation != null)
-                {
-                    Open();
-                    SqlCommand sqlcmd = new SqlCommand();
-                    sqlcmd.Connection = Connection;
-                    sqlcmd.CommandType = CommandType.Text;
-                    sqlcmd.CommandText = "INSERT INTO [dbo].[Cat_Areas] VALUES (@nameArea, @defaultArea); SELECT SCOPE_IDENTITY();";
-                    sqlcmd.Parameters.AddWithValue("@nameArea", areaInformation.NameArea);
-                    sqlcmd.Parameters.AddWithValue("@defaultArea", areaInformation.DefaultArea);
-                    collaboratorId = Convert.ToInt32(sqlcmd.ExecuteScalar());
-                    Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return collaboratorId;
-        }
-
-        /// <summary>
-        /// Método utilizado para almacenar un registro en el historial de carga de archivos.
-        /// </summary>
-        /// <param name="fileLogData">Objeto que contiene la información general del archivo que se está cargando.</param>
-        /// <returns>Devuelve el id asociado al historial de carga del archivo que recién fue insertado.</returns>
-        public int SaveFileLog(FileLogData fileLogData)
-        {
-            int fileLogId = 0;
-            try
-            {
-                if (fileLogData != null)
-                {
-                    SqlCommand sqlcmd = new SqlCommand();
-                    StringBuilder query = new StringBuilder();
-                    Open();
-                    sqlcmd.Connection = Connection;
-                    sqlcmd.CommandType = CommandType.Text;
-                    query.Append(" INSERT INTO [dbo].[Tbl_LogArchivos] VALUES (@fileName, @chargeDate, @approvalFlag, @userId, @fileTypeId); ");
-                    query.Append(" SELECT SCOPE_IDENTITY(); ");
-                    sqlcmd.CommandText = query.ToString();
-                    sqlcmd.Parameters.AddWithValue("@fileName", fileLogData.FileName);
-                    sqlcmd.Parameters.AddWithValue("@chargeDate", fileLogData.ChargeDate);
-                    sqlcmd.Parameters.AddWithValue("@approvalFlag", fileLogData.ApprovalFlag);
-                    sqlcmd.Parameters.AddWithValue("@userId", fileLogData.UserId);
-                    sqlcmd.Parameters.AddWithValue("@fileTypeId", fileLogData.FileTypeId);
-                    fileLogId = Convert.ToInt32(sqlcmd.ExecuteScalar());
-                    Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return fileLogId;
-        }
-
-        /// <summary>
-        /// Método utilizado para agregar una columna adicional a un dataTable existente.
-        /// </summary>
-        /// <param name="dataTableObj">Objeto que contiene la información del dataTable.</param>
-        /// <param name="columnName">Nombre de la columna a agregar.</param>
-        /// <param name="defaultValue">Valor default a colocar en la nueva columna.</param>
-        private static void DataTableAddColumn(DataTable dataTableObj, string columnName, dynamic defaultValue = null)
-        {
-            DataColumn newColumn = null;
-            if (defaultValue != null)
-            {
-                newColumn = new DataColumn(columnName, defaultValue.GetType()) { DefaultValue = defaultValue };
-            }
-            else
-            {
-                newColumn = new DataColumn(columnName);
-            }
-
-            dataTableObj.Columns.Add(newColumn);
         }
     }
 }

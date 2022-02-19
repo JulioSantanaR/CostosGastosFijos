@@ -76,5 +76,45 @@
         {
             return Connection;
         }
+
+        /// <summary>
+        /// Método utilizado para determinar si la información obtenida de la Base de Datos contiene una columna específica.
+        /// </summary>
+        /// <param name="dr">Información leída desde la Base de Datos.</param>
+        /// <param name="columnName">Nombre asociado a la columna a buscar en el data reader.</param>
+        /// <returns>Devuelve una bandera para determinar si la información leída contiene la columna enviada.</returns>
+        public bool HasColumn(IDataRecord dr, string columnName)
+        {
+            for (int i = 0; i < dr.FieldCount; i++)
+            {
+                if (dr.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Método utilizado para agregar una columna adicional a un dataTable existente.
+        /// </summary>
+        /// <param name="dataTableObj">Objeto que contiene la información del dataTable.</param>
+        /// <param name="columnName">Nombre de la columna a agregar.</param>
+        /// <param name="defaultValue">Valor default a colocar en la nueva columna.</param>
+        public void DataTableAddColumn(DataTable dataTableObj, string columnName, dynamic defaultValue = null)
+        {
+            DataColumn newColumn = null;
+            if (defaultValue != null)
+            {
+                newColumn = new DataColumn(columnName, defaultValue.GetType()) { DefaultValue = defaultValue };
+            }
+            else
+            {
+                newColumn = new DataColumn(columnName);
+            }
+
+            dataTableObj.Columns.Add(newColumn);
+        }
     }
 }

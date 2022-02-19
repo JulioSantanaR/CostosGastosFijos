@@ -1,15 +1,12 @@
 ﻿namespace AppCostosGastosFijos.Controllers
 {
-    using Business;
+    using System;
+    using System.Web.Mvc;
+    using System.Web.Script.Serialization;
+    using Business.Services;
     using Data.Models;
     using Data.Models.Request;
     using Data.Models.Response;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Web;
-    using System.Web.Mvc;
-    using System.Web.Script.Serialization;
 
     /// <summary>
     /// Controlador asociado a las operaciones sobre la administración de áreas.
@@ -37,7 +34,7 @@
             int areasCount = 0;
             try
             {
-                AreasTableResponse areasData = ReadDataService.GetAreasTable(dataTableInfo);
+                AreasTableResponse areasData = AreasService.GetAreasTable(dataTableInfo);
                 if (areasData != null)
                 {
                     if (areasData.AreasList != null && areasData.AreasList.Count > 0)
@@ -68,7 +65,7 @@
             {
                 if (areaId.HasValue && areaId.Value > 0)
                 {
-                    AreaData areaInformation = ReadDataService.GetAreaById(areaId.Value);
+                    AreaData areaInformation = AreasService.GetAreaById(areaId.Value);
                     ViewBag.areaInformation = areaInformation;
                 }
 
@@ -94,11 +91,11 @@
             {
                 if (areaInformation.AreaId != 0)
                 {
-                    successResponse = UpdateDataService.UpdateAreaInformation(areaInformation);
+                    successResponse = AreasService.UpdateAreaInformation(areaInformation);
                 }
                 else
                 {
-                    int areaId = SaveDataService.SaveAreaInformation(areaInformation);
+                    int areaId = AreasService.SaveAreaInformation(areaInformation);
                     successResponse = areaId != 0;
                 }
             }
@@ -122,11 +119,11 @@
             try
             {
                 // Eliminar el área de la relación entre usuario/área.
-                successResponse = DeleteDataService.DeleteUserAreas(null, areaId);
+                successResponse = AreasService.DeleteUserAreas(null, areaId);
                 if (successResponse)
                 {
                     // Eliminar la información general del área.
-                    successResponse = DeleteDataService.DeleteAreaInformation(areaId);
+                    successResponse = AreasService.DeleteAreaInformation(areaId);
                 }
             }
             catch (Exception)

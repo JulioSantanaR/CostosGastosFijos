@@ -1,20 +1,7 @@
-﻿body {
-    padding: 0;
-    margin: 0;
-    font-family: Calibri;
-    background-image: url('../Images/CGFijos.jpg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-size: cover;
-}
-
-.logoCompaniaBackBtn {
-    position: absolute;
-    top: 30px;
-    left: 14px;
-    width: 12%;
-    height: auto;
-    z-index: 12;
+﻿.logoCompaniaBackBtn {
+    height: 2.5em;
+    width: 7em;
+    filter: brightness(0) invert(1);
 }
 
 .nav-tabs {
@@ -40,7 +27,11 @@
     }
 
 .tab-pane {
-    background-color: #f8f9fa;
+    background-color: #FFF;
+}
+
+.tab-content {
+    padding: 0px !important;
 }
 
 h3 {
@@ -50,10 +41,6 @@ h3 {
 p {
     padding: 10px 20px 40px;
     line-height: 2;
-}
-
-i {
-    padding-right: 5px;
 }
 
 @media(max-width: 450px) {
@@ -72,4 +59,135 @@ i {
 .py-5 {
     padding-top: 5rem !important;
     padding-bottom: 5rem !important;
+}
+
+html,
+body {
+    overflow-x: hidden; /* Prevent scroll on narrow devices */
+}
+
+/* navbar hide on scroll down */
+.nav-up {
+    top: -80px;
+}
+
+.navbar {
+    transition: top 0.4s ease-in-out;
+}
+
+.sidebar,
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+}
+
+.sidebar {
+    left: -100%;
+    max-width: 300px;
+    transition: all ease 0.25s;
+    overflow-y: auto;
+    z-index: 1032;
+}
+
+.overlay {
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.50);
+    visibility: hidden;
+    z-index: 1031;
+}
+
+.main-navigation.active .sidebar {
+    left: 0;
+}
+
+.main-navigation.active .overlay {
+    visibility: visible;
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        position: relative;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        flex-direction: row;
+        max-width: 100%;
+        transform: none;
+        transition: none;
+        overflow-y: visible;
+        z-index: auto;
+    }
+}
+
+.main-heading {
+    position: relative;
+    z-index: 100;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        padding-top: 5rem;
+        padding-left: 1.5rem;
+    }
+
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: column !important;
+    }
+}
+
+@media (min-width: 1084px) {
+    .order-lg-2 svg {
+        display: none;
+    }
+}
+
+.error {
+    color: red;
+}
+
+.bg-primary {
+    background-color: #bb131b !important;
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #bb131b;
+    border-color: #bb131b;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    color: #bb131b;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+    .page-link:hover, .page-link:focus {
+        color: #bb131b;
+        background-color: #f7afb2;
+        border-color: #f7afb2;
+    }
+
+.btn-outline-jdvsc {
+    color: #bb131b;
+    border-color: #bb131b;
+}
+
+    .btn-outline-jdvsc:hover, .btn-outline-jdvsc:focus {
+        color: #FFF;
+        border-color: #bb131b;
+        background-color: #bb131b;
+    }
+
+.dropdown-item:focus {
+    color: #FFF;
+    background-color: #bb131b;
 }

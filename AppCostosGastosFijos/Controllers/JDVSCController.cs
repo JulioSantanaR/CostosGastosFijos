@@ -49,74 +49,67 @@
             string message = string.Empty;
             try
             {
-                string userName = GetUserInformation();
-                if (!string.IsNullOrEmpty(userName))
+                UserData userInformation = GetUserData();
+                if (userInformation != null)
                 {
-                    UserData userInformation = ReadDataService.CollaboratorByUsername(userName);
-                    if (userInformation != null)
+                    foreach (string item in Request.Files)
                     {
-                        foreach (string item in Request.Files)
+                        HttpPostedFileBase file = Request.Files[item];
+                        if (file.ContentLength > 0)
                         {
-                            HttpPostedFileBase file = Request.Files[item] as HttpPostedFileBase;
-                            if (file.ContentLength > 0)
+                            string extension = Path.GetExtension(file.FileName);
+
+                            // Leer el archivo.
+                            var accountsTable = CommonService.ReadFile(file.InputStream, extension);
+                            if (accountsTable.Tables.Count > 0)
                             {
-                                string extension = Path.GetExtension(file.FileName);
-
-                                // Leer el archivo.
-                                var accountsTable = CommonService.ReadFile(file.InputStream, extension);
-                                if (accountsTable.Tables.Count > 0)
+                                AccountsDataRequest accountsData = new AccountsDataRequest()
                                 {
-                                    AccountsDataRequest accountsData = new AccountsDataRequest()
-                                    {
-                                        FileData = accountsTable.Tables[0],
-                                        YearAccounts = yearData,
-                                        ChargeTypeAccounts = chargeTypeData,
-                                        ChargeTypeName = chargeTypeName,
-                                        Collaborator = userInformation.CollaboratorId,
-                                        Area = areaData,
-                                    };
+                                    FileData = accountsTable.Tables[0],
+                                    YearAccounts = yearData,
+                                    ChargeTypeAccounts = chargeTypeData,
+                                    ChargeTypeName = chargeTypeName,
+                                    Collaborator = userInformation.CollaboratorId,
+                                    Area = areaData,
+                                    FileName = file.FileName,
+                                };
 
-                                    AccountsResponse response = null;
-                                    if (manualBudget)
-                                    {
-                                        response = SaveDataService.ManualBudgetInformation(accountsData);
-                                    }
-                                    else
-                                    {
-                                        response = SaveDataService.AccountsInformation(accountsData);
-                                    }
-                                    
-                                    if (response != null)
-                                    {
-                                        List<Accounts> notFoundAccounts = response.NotFoundAccounts;
-                                        successResponse = response.SuccessProcess;
-                                        if (notFoundAccounts != null && notFoundAccounts.Count > 0)
-                                        {
-                                            message = "Las siguientes cuentas/CECOS no se encontraron en el BIF";
-                                            for (int i = 0; i < notFoundAccounts.Count; i++)
-                                            {
-                                                var singleAccount = notFoundAccounts[i];
-                                                message += string.Format("{0}{1}|{2}", "\n", singleAccount.Account, singleAccount.CostCenter);
-                                            }
-                                        }
+                                AccountsResponse response = null;
+                                if (manualBudget)
+                                {
+                                    response = SaveDataService.ManualBudgetInformation(accountsData);
+                                }
+                                else
+                                {
+                                    response = SaveDataService.AccountsInformation(accountsData);
+                                }
 
-                                        if (!successResponse)
+                                if (response != null)
+                                {
+                                    List<Accounts> notFoundAccounts = response.NotFoundAccounts;
+                                    successResponse = response.SuccessProcess;
+                                    if (notFoundAccounts != null && notFoundAccounts.Count > 0)
+                                    {
+                                        message = "Las siguientes cuentas/CECOS no se encontraron en el BIF";
+                                        for (int i = 0; i < notFoundAccounts.Count; i++)
                                         {
-                                            break;
+                                            var singleAccount = notFoundAccounts[i];
+                                            message += string.Format("{0}{1}|{2}", "\n", singleAccount.Account, singleAccount.CostCenter);
                                         }
+                                    }
+
+                                    if (!successResponse)
+                                    {
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
-                    else
-                    {
-                        message = "El usuario no tiene permisos para cargar esta información";
-                    }
                 }
                 else
                 {
-                    message = "No se pudo recuperar el nombre del usuario actual.";
+                    message = "El usuario no tiene permisos para cargar esta información";
                 }
             }
             catch (Exception ex)
@@ -141,16 +134,28 @@
             bool successResponse = false;
             try
             {
-                foreach (string item in Request.Files)
+                UserData userInformation = GetUserData();
+                if (userInformation != null)
                 {
-                    HttpPostedFileBase file = Request.Files[item] as HttpPostedFileBase;
-                    if (file.ContentLength > 0)
+                    foreach (string item in Request.Files)
                     {
-                        string extension = Path.GetExtension(file.FileName);
-                        successResponse = SaveDataService.VolumenInformation(file.InputStream, extension, yearData, chargeTypeData, chargeTypeName);
-                        if (!successResponse)
+                        HttpPostedFileBase file = Request.Files[item];
+                        if (file.ContentLength > 0)
                         {
-                            break;
+                            VolumeDataRequest volumeData = new VolumeDataRequest()
+                            {
+                                FileData = file,
+                                YearData = yearData,
+                                ChargeType = chargeTypeData,
+                                ChargeTypeName = chargeTypeName,
+                                Collaborator = userInformation.CollaboratorId,
+                            };
+
+                            successResponse = SaveDataService.VolumenInformation(volumeData);
+                            if (!successResponse)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -178,20 +183,32 @@
             string message = string.Empty;
             try
             {
-                foreach (string item in Request.Files)
+                UserData userInformation = GetUserData();
+                if (userInformation != null)
                 {
-                    HttpPostedFileBase file = Request.Files[item] as HttpPostedFileBase;
-                    if (file.ContentLength > 0)
+                    foreach (string item in Request.Files)
                     {
-                        string extension = Path.GetExtension(file.FileName);
-                        UploadResponse response = SaveDataService.PromotoriaInformation(file.InputStream, extension, yearData, chargeTypeData, chargeTypeName);
-                        if (response != null)
+                        HttpPostedFileBase file = Request.Files[item];
+                        if (file.ContentLength > 0)
                         {
-                            successResponse = response.ResponseFlag;
-                            message = response.ErrorMessage;
-                            if (!successResponse)
+                            PromotoriaDataRequest volumeData = new PromotoriaDataRequest()
                             {
-                                break;
+                                FileData = file,
+                                YearData = yearData,
+                                ChargeType = chargeTypeData,
+                                ChargeTypeName = chargeTypeName,
+                                Collaborator = userInformation.CollaboratorId,
+                            };
+
+                            UploadResponse response = SaveDataService.PromotoriaInformation(volumeData);
+                            if (response != null)
+                            {
+                                successResponse = response.ResponseFlag;
+                                message = response.ErrorMessage;
+                                if (!successResponse)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -375,6 +392,23 @@
             }
 
             return userName;
+        }
+
+        /// <summary>
+        /// Obtener la información general asociada al usuario.
+        /// </summary>
+        /// <param name="user">Username del usuario (opcional).</param>
+        /// <returns>Devuelve un objeto que contiene la información general asociada al usuario.</returns>
+        public UserData GetUserData(string user = "")
+        {
+            UserData userInformation = null;
+            string userName = GetUserInformation(user);
+            if (!string.IsNullOrEmpty(userName))
+            {
+                userInformation = ReadDataService.CollaboratorByUsername(userName);
+            }
+
+            return userInformation;
         }
 
         /// <summary>

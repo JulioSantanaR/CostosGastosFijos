@@ -1,0 +1,96 @@
+﻿@using AppCostosGastosFijos.Models;
+@using Data.Models;
+@{ 
+    FileLogViewModel fileLogView = ViewBag.fileLogView != null ? (FileLogViewModel)ViewBag.fileLogView : null;
+    List<FileType> fileTypeCatalog = fileLogView != null && fileLogView.FileTypeCatalog != null && fileLogView.FileTypeCatalog.Count > 0 ? fileLogView.FileTypeCatalog : null;
+    List<AreaData> areaCatalog = fileLogView != null && fileLogView.AreasCatalog != null && fileLogView.AreasCatalog.Count > 0 ? fileLogView.AreasCatalog : null;
+    List<ChargeType> chargeTypes = fileLogView != null && fileLogView.ChargeTypes != null && fileLogView.ChargeTypes.Count > 0 ? fileLogView.ChargeTypes : null;
+    bool isCollaborator = ViewBag.isCollaborator != null ? (bool)ViewBag.isCollaborator : false;
+}
+
+<div class="wrapper">
+    <div id="body" class="active">
+        <div class="content">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <label for="colFormLabel" class="col-form-label fw-bold">Año</label>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select selectYears" id="yearData_Log"></select>
+                    </div>
+
+                    @* Catálogo tipos de carga. *@
+                    @if (chargeTypes != null && chargeTypes.Count > 0)
+                    {
+                        <div class="col-auto">
+                            <label for="colFormLabel" class="col-form-label fw-bold">Tipo de carga</label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select" id="chargeTypeCatalog_Log">
+                                <option value="">Todos</option>
+                                @for (int i = 0; i < chargeTypes.Count; i++)
+                                {
+                                    var singleChargeType = chargeTypes[i];
+                                    <option value="@singleChargeType.ChargeTypeId">@singleChargeType.ChargeTypeName</option>
+                                }
+                            
+                            </select>
+                        </div> 
+                    } 
+                    
+                    @* Catálogo tipos de archivos. *@
+                    @if (fileTypeCatalog != null && fileTypeCatalog.Count > 0)
+                    {
+                        <div class="col-auto">
+                            <label for="colFormLabel" class="col-form-label fw-bold">Tipo de archivo</label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select" id="fileTypeCatalog_Log">
+                                <option value="">Todos</option>
+                                @for (int i = 0; i < fileTypeCatalog.Count; i++)
+                                {
+                                    var singleFileType = fileTypeCatalog[i];
+                                    <option value="@singleFileType.FileTypeId">@singleFileType.FileTypeName</option>
+                                }
+
+                            </select>
+                        </div>
+                    }
+                </div>
+                <div class="row py-4 align-items-center">
+                    
+                    @* Catálogo de áreas. *@
+                    @if (areaCatalog != null && areaCatalog.Count > 0)
+                    {
+                        <div class="col-auto">
+                            <label for="colFormLabel" class="col-form-label fw-bold">Área</label>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select" id="areaData_Log">
+                                <option value="">Todas</option>
+                                @for (int i = 0; i < areaCatalog.Count; i++)
+                                {
+                                    var singleArea = areaCatalog[i];
+                                    <option value="@singleArea.AreaId">@singleArea.NameArea</option>
+                                }
+
+                            </select>
+                        </div>
+                    }
+                </div>
+                <div class="box box-primary">
+                    <div class="box-body">
+                        <table width="100%" class="table table-hover" id="fileLogTbl"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var isCollaborator = ('@isCollaborator') === 'True';
+</script>
+<script src="~/Scripts/fileLog/log-datatables.js"></script>
+<script src="~/Scripts/fileLog/log-gral.js"></script>

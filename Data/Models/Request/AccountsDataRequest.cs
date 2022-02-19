@@ -41,5 +41,15 @@
         /// Tipo de ejercicio.
         /// </summary>
         public string ExerciseType { get; set; }
+
+        /// <summary>
+        /// Nombre asociado al archivo que se está cargando.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// Id asociado al archivo que se está cargando.
+        /// </summary>
+        public int FileLogId { get; set; }
     }
 }

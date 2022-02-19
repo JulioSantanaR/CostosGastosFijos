@@ -39,5 +39,10 @@
         /// Orden de la columna (ASC o DESC)
         /// </summary>
         public string SortOrder { get; set; }
+
+        /// <summary>
+        /// Objeto que contiene los parámetros para buscar información en el historial de archivos.
+        /// </summary>
+        public LogFileRequest FileRequest { get; set; }
     }
 }

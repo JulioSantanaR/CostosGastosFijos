@@ -46,6 +46,7 @@
                     sqlcmd.Parameters.AddWithValue("@colaborador", accountsData.Collaborator);
                     sqlcmd.Parameters.AddWithValue("@area", accountsData.Area);
                     sqlcmd.Parameters.AddWithValue("@tipoEjercicio", accountsData.ExerciseType);
+                    sqlcmd.Parameters.AddWithValue("@logArchivo", accountsData.FileLogId);
                     sqlcmd.CommandTimeout = 3600;
                     sqlcmd.ExecuteNonQuery();
                     Close();
@@ -146,36 +147,6 @@
                 sqlcmd.Parameters.AddWithValue("@username", userInformation.Username);
                 sqlcmd.Parameters.AddWithValue("@role", userInformation.RoleId);
                 sqlcmd.Parameters.AddWithValue("@userId", userInformation.CollaboratorId);
-                sqlcmd.ExecuteNonQuery();
-                Close();
-                successUpdate = true;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return successUpdate;
-        }
-
-        /// <summary>
-        /// Método utilizado para actualizar la información asociada a un área en el catálogo de la aplicación.
-        /// </summary>
-        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
-        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
-        public bool UpdateAreaInformation(AreaData areaInformation)
-        {
-            bool successUpdate = false;
-            try
-            {
-                Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = "UPDATE [dbo].[Cat_Areas] SET nombre = @name, defaultArea = @defaultArea WHERE cve_Area = @areaId ";
-                sqlcmd.Parameters.AddWithValue("@name", areaInformation.NameArea);
-                sqlcmd.Parameters.AddWithValue("@defaultArea", areaInformation.DefaultArea);
-                sqlcmd.Parameters.AddWithValue("@areaId", areaInformation.AreaId);
                 sqlcmd.ExecuteNonQuery();
                 Close();
                 successUpdate = true;

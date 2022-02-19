@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Business.Services;
     using Data;
     using Data.Models;
     using Data.Repositories;
@@ -118,28 +119,6 @@
         }
 
         /// <summary>
-        /// Método utilizado para actualizar la información asociada a un área en el catálogo de la aplicación.
-        /// </summary>
-        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
-        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
-        public static bool UpdateAreaInformation(AreaData areaInformation)
-        {
-            bool successUpdate = false;
-            try
-            {
-                UpdateDataDAO connection = new UpdateDataDAO();
-                successUpdate = connection.UpdateAreaInformation(areaInformation);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UpdateAreaInformation()." + "Error: " + ex.Message);
-            }
-
-            return successUpdate;
-        }
-
-        /// <summary>
         /// Método auxiliar en la eliminación de áreas existentes en la Base de Datos.
         /// </summary>
         /// <param name="areas">Lista de áreas que se pretende eliminar.</param>
@@ -151,7 +130,7 @@
                 for (int i = 0; i < existingAreas.Count; i++)
                 {
                     var singleArea = existingAreas[i];
-                    DeleteDataService.DeleteUserAreas(userId, singleArea);
+                    AreasService.DeleteUserAreas(userId, singleArea);
                 }
             }
         }

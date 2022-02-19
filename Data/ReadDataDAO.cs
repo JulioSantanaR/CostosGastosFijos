@@ -27,11 +27,6 @@
         /// </summary>
         private readonly string[] CollaboratorFields = new string[] { "cve_Colaborador", "nombre", "correo", "usuario", "cve_RolUsuario" };
 
-        /// <summary>
-        /// Columnas asociadas al catálogo de "áreas".
-        /// </summary>
-        private readonly string[] AreaFields = new string[] { "cve_Area", "nombre", "defaultArea" };
-
         private readonly string[] UserRoleFields = new string[] { "cve_RolUsuario", "rolUsuario", "defaultRole" };
 
         /// <summary>
@@ -56,10 +51,12 @@
                 query.Append("SELECT ").Append(string.Join(",", CollaboratorFields));
                 query.Append(" FROM Cat_Colaboradores WHERE usuario = @username ");
                 Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
+                SqlCommand sqlcmd = new SqlCommand
+                {
+                    Connection = Connection,
+                    CommandType = CommandType.Text,
+                    CommandText = query.ToString()
+                };
                 sqlcmd.Parameters.AddWithValue("@username", username);
                 var reader = sqlcmd.ExecuteReader();
                 while (reader.Read())
@@ -141,95 +138,6 @@
             }
 
             return userAreas;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar todo el catálogo de áreas.
-        /// </summary>
-        /// <param name="includeAllAreas">Bandera para saber si incluir "Todas las áreas" en la consulta.</param>
-        /// <returns>Devuelve la lista de todas las áreas dadas de alta en el catálogo.</returns>
-        public List<AreaData> GetAllAreas(bool includeAllAreas = false)
-        {
-            List<AreaData> allAreas = new List<AreaData>();
-            try
-            {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT ").Append(string.Join(",", AreaFields));
-                query.Append(" FROM [dbo].[Cat_Areas] ");
-                query.Append(" WHERE 1 = 1 ");
-                if (!includeAllAreas)
-                {
-                    query.Append(" AND cve_Area <> 0 ");
-                }
-
-                query.Append(" ORDER BY CASE WHEN cve_Area = 0 THEN 0 ELSE 1 END, nombre, cve_Area ASC ");
-                Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                var reader = sqlcmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    AreaData singleArea = new AreaData();
-                    singleArea.AreaId = reader["cve_Area"] != DBNull.Value ? Convert.ToInt32(reader["cve_Area"]) : 0;
-                    singleArea.NameArea = reader["nombre"] != DBNull.Value ? reader["nombre"].ToString() : string.Empty;
-                    singleArea.DefaultArea = reader["defaultArea"] != DBNull.Value ? Convert.ToBoolean(reader["defaultArea"]) : false;
-                    allAreas.Add(singleArea);
-                }
-
-                reader.Close();
-                Close();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return allAreas;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar la información de la promotoría de acuerdo a un año y tipo de ejercicio específicos.
-        /// </summary>
-        /// <param name="yearData">Año del ejercicio.</param>
-        /// <param name="chargeTypeData">Tipo de ejercicio.</param>
-        /// <returns>Devuelve la información asociada al detalle del presupuesto correspondiente a la promotoría.</returns>
-        public List<PromotoriaDB> GetPromotoria(int yearData, int chargeTypeData)
-        {
-            List<PromotoriaDB> promotoria = new List<PromotoriaDB>();
-            try
-            {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT mes, SUM(presupuesto) AS presupuesto FROM [dbo].[Fact_CostosGastosFijos] ");
-                query.Append("WHERE (filtro COLLATE Latin1_general_CI_AI) LIKE '%promotoria%' ");
-                query.Append("AND cve_TipoCarga = @chargeTypeData AND anio = @yearData GROUP BY mes ");
-                Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                sqlcmd.Parameters.AddWithValue("@chargeTypeData", chargeTypeData);
-                sqlcmd.Parameters.AddWithValue("@yearData", yearData);
-                var reader = sqlcmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    PromotoriaDB singleBudget = new PromotoriaDB();
-                    singleBudget.MonthNumber = reader["mes"] != DBNull.Value ? Convert.ToInt32(reader["mes"]) : default(int);
-                    singleBudget.Budget = reader["presupuesto"] != DBNull.Value ? Convert.ToDouble(reader["presupuesto"]) : default(double);
-                    promotoria.Add(singleBudget);
-                }
-
-                reader.Close();
-                Close();
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("GetPromotoria()." + "Error: " + ex.Message);
-            }
-
-            return promotoria;
         }
 
         /// <summary>
@@ -505,118 +413,6 @@
         }
 
         /// <summary>
-        /// Método utilizado para recuperar la información que será mostrada en la tabla del catálogo de áreas.
-        /// </summary>
-        /// <param name="dataTableInfo">Objeto que contiene los parámetros de búsqueda para la tabla de áreas.</param>
-        /// <returns>Devuelve un objeto que contiene la información necesaria para mostrar la tabla de áreas.</returns>
-        public AreasTableResponse GetAreasTable(DataTableRequest dataTableInfo)
-        {
-            List<AreaData> areasList = new List<AreaData>();
-            int areasCount = 0;
-            try
-            {
-                if (dataTableInfo != null)
-                {
-                    Open();
-                    SqlCommand sqlcmd = new SqlCommand();
-                    sqlcmd.Connection = Connection;
-                    sqlcmd.CommandType = CommandType.Text;
-                    if (!dataTableInfo.GetTotalRowsCount)
-                    {
-                        string queryAreasList = AreasCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryAreasList;
-                        sqlcmd.Parameters.AddWithValue("@rowsToSkip", dataTableInfo.RowsToSkip);
-                        sqlcmd.Parameters.AddWithValue("@numbersOfRows", dataTableInfo.NumberOfRows);
-                        if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
-                        {
-                            sqlcmd.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
-                        }
-
-                        var reader = sqlcmd.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            AreaData singleArea = Mapping.MapArea(reader);
-                            areasList.Add(singleArea);
-                        }
-
-                        reader.Close();
-                    }
-
-                    if (dataTableInfo.MakeServicesCountQuery)
-                    {
-                        dataTableInfo.GetTotalRowsCount = true;
-                        string queryAreasCount = AreasCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryAreasCount;
-                        areasCount = Convert.ToInt32(sqlcmd.ExecuteScalar());
-                    }
-
-                    Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            AreasTableResponse areasTable = new AreasTableResponse()
-            {
-                AreasList = areasList,
-                AreasCount = areasCount
-            };
-            return areasTable;
-        }
-
-        /// <summary>
-        /// Método utilizado para construir la consulta para encontrar la información en la tabla de áreas.
-        /// </summary>
-        /// <param name="dataTableInfo">Objeto que contiene los parámetros de búsqueda para la tabla de áreas.</param>
-        /// <returns>Devuelve una cadena con la consulta para buscar la información.</returns>
-        public string AreasCommonQuery(DataTableRequest dataTableInfo)
-        {
-            StringBuilder query = new StringBuilder();
-            if (dataTableInfo != null)
-            {
-                if (dataTableInfo.GetTotalRowsCount)
-                {
-                    query.Append(" SELECT COUNT(*) AS countAreas FROM Cat_Areas WHERE cve_Area <> 0 ");
-                }
-                else
-                {
-                    query.Append(" SELECT * FROM ( ");
-                    query.Append("  SELECT *, ROW_NUMBER() OVER (");
-                    if (!string.IsNullOrEmpty(dataTableInfo.SortName))
-                    {
-                        query.Append("ORDER BY ").Append(dataTableInfo.SortName);
-                        if (!string.IsNullOrEmpty(dataTableInfo.SortOrder))
-                        {
-                            query.Append(" ").Append(dataTableInfo.SortOrder);
-                        }
-                    }
-                    else
-                    {
-                        query.Append(" ORDER BY cve_Area ");
-                    }
-
-                    query.Append(" ) AS rowNumber ");
-                    query.Append("  FROM [dbo].[Cat_Areas] WHERE cve_Area <> 0 ");
-                    if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
-                    {
-                        query.Append(" WHERE CHARINDEX(REPLACE(LTRIM(RTRIM(LOWER(@searchValue))), ' ', ''), ");
-                        query.Append("  REPLACE(LTRIM(RTRIM(LOWER( ");
-                        query.Append("      ISNULL(nombre, '') ");
-                        query.Append("  ))), ' ', '') ");
-                        query.Append(" ) > 0 ");
-                    }
-
-                    query.Append(" ) t WHERE rowNumber BETWEEN (@rowsToSkip + 1) AND (@rowsToSkip + @numbersOfRows) ");
-                }
-            }
-
-            string finalQuery = query.ToString();
-            return finalQuery;
-        }
-
-        /// <summary>
         /// Método utilizado para recuperar el catálogo de roles de usuario.
         /// </summary>
         /// <returns>Devuelve el catálogo de roles de usuario disponibles.</returns>
@@ -675,43 +471,6 @@
             }
 
             return userInformation;
-        }
-
-        /// <summary>
-        /// Método utilizado para recuperar la información de un área de acuerdo al id asociado a esta.
-        /// </summary>
-        /// <param name="areaId">Id asociado al área.</param>
-        /// <returns>Devuelve la información general del área.</returns>
-        public AreaData GetAreaById(int areaId)
-        {
-            AreaData areaInformation = null;
-            try
-            {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT ").Append(string.Join(",", AreaFields));
-                query.Append(" FROM [dbo].[Cat_Areas] ");
-                query.Append(" WHERE cve_Area = @areaId");
-                Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                sqlcmd.Parameters.AddWithValue("@areaId", areaId);
-                var reader = sqlcmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    areaInformation = Mapping.MapArea(reader);
-                }
-
-                reader.Close();
-                Close();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return areaInformation;
         }
 
         /// <summary>
@@ -827,25 +586,6 @@
 
             string parameterResult = string.Join(",", parameters);
             return parameterResult;
-        }
-
-        /// <summary>
-        /// Método utilizado para determinar si la información obtenida de la Base de Datos contiene una columna específica.
-        /// </summary>
-        /// <param name="dr">Información leída desde la Base de Datos.</param>
-        /// <param name="columnName">Nombre asociado a la columna a buscar en el data reader.</param>
-        /// <returns>Devuelve una bandera para determinar si la información leída contiene la columna enviada.</returns>
-        private bool HasColumn(IDataRecord dr, string columnName)
-        {
-            for (int i = 0; i < dr.FieldCount; i++)
-            {
-                if (dr.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

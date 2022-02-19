@@ -1,16 +1,7 @@
-﻿body {
-    padding: 0;
-    margin: 0;
-    font-family: Calibri;
-    background-image: url('../Images/CGFijos.jpg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-size: cover;
-}
-
-.logoCompaniaBackBtn {
+﻿.logoCompaniaBackBtn {
     height: 2.5em;
     width: 7em;
+    filter: brightness(0) invert(1);
 }
 
 .nav-tabs {
@@ -36,7 +27,11 @@
     }
 
 .tab-pane {
-    background-color: #f8f9fa;
+    background-color: #FFF;
+}
+
+.tab-content {
+    padding: 0px !important;
 }
 
 h3 {
@@ -46,10 +41,6 @@ h3 {
 p {
     padding: 10px 20px 40px;
     line-height: 2;
-}
-
-i {
-    padding-right: 5px;
 }
 
 @media(max-width: 450px) {
@@ -156,4 +147,47 @@ body {
 
 .error {
     color: red;
+}
+
+.bg-primary {
+    background-color: #bb131b !important;
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #bb131b;
+    border-color: #bb131b;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    color: #bb131b;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+    .page-link:hover, .page-link:focus {
+        color: #bb131b;
+        background-color: #f7afb2;
+        border-color: #f7afb2;
+    }
+
+.btn-outline-jdvsc {
+    color: #bb131b;
+    border-color: #bb131b;
+}
+
+    .btn-outline-jdvsc:hover, .btn-outline-jdvsc:focus {
+        color: #FFF;
+        border-color: #bb131b;
+        background-color: #bb131b;
+    }
+
+.dropdown-item:focus {
+    color: #FFF;
+    background-color: #bb131b;
 }

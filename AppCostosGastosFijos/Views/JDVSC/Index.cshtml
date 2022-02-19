@@ -24,7 +24,7 @@ else
             ClearFileArea();
 
             // Función utilizada para cargar los años en el selector correspondiente.
-            PopulateYears();
+            PopulateYears(true, false);
 
             // Actualizar cubo de información.
             $(".updateCube").off("click").on("click", function () {
@@ -34,7 +34,37 @@ else
             });
 
             ManualBudget();
+
+            TabsChange();
         });
+
+        function TabsChange() {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr("href");
+                if ("#logFiles" == target) {
+                    var isCollaborator = $(this).data("collaborator") !== undefined ? $(this).data("collaborator") : false;
+                    $.ajax({
+                        async: false,
+                        data: { isCollaborator },
+                        type: 'POST',
+                        url: "/FileLog/ShowFileLogView",
+                        beforeSend: function () {
+                            $('body').loadingModal({
+                                text: 'Cargando...'
+                            });
+                            $('#logFiles').html("");
+                        },
+                        success: function (response) {
+                            $('#logFiles').html(response);
+                            PopulateYears(null, true);
+                            $('body').loadingModal('hide');
+                        }
+                    });
+                } else {
+                    $('#logFiles').html("");
+                }
+            });
+        }
 
         /**
          * Función utilizada para ocultar una alerta al dar click en el botón de "X".
@@ -119,14 +149,24 @@ else
 
         /**
          * Función utilizada para cargar la lista de años en los selectores correspondientes.
+         * @@param selectCurrentYear Bandera para determinar si seleccionar por default el año actual o no.
+         * @@param allYearOption Bandera para saber si agregar la opción de "Todos".
          */
-        function PopulateYears() {
-            var currentYear = new Date().getFullYear();
+        function PopulateYears(selectCurrentYear, allYearOption) {
+            selectCurrentYear = selectCurrentYear || false;
+            allYearOption = allYearOption || false;
+            var currentYear = new Date().getFullYear(),
+                selectYear = $(".selectYears");
+            if (allYearOption) {
+                var allOptionHtml = '<option value="">Todos</option>';
+                selectYear.append(allOptionHtml);
+            }
+
             for (var i = -1; i < 4; i++) {
                 var yearValue = currentYear + i,
-                    selectedTxt = currentYear === yearValue ? "selected" : "",
+                    selectedTxt = currentYear === yearValue && selectCurrentYear ? "selected" : "",
                     yearHtml = '<option ' + selectedTxt + ' value="' + yearValue + '">' + yearValue + '</option>';
-                $(".selectYears").append(yearHtml);
+                selectYear.append(yearHtml);
             }
         }
 

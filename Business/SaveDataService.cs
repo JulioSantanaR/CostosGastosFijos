@@ -8,6 +8,8 @@
     using System.Linq;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using System.Web;
+    using Business.Services;
     using Data;
     using Data.Models;
     using Data.Models.Request;
@@ -36,14 +38,25 @@
                     int yearAccounts = accountsData.YearAccounts;
                     int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
 
-                    // Eliminar presupuesto anterior existente.
-                    DeleteDataDAO deleteData = new DeleteDataDAO();
-                    bool successDelete = deleteData.DeleteAccounts(accountsData);
-                    if (successDelete)
+                    // Guardar la información del archivo que se está cargando.
+                    FileLogData fileLogData = new FileLogData()
                     {
-                        SaveDataDAO saveData = new SaveDataDAO();
+                        FileName = accountsData.FileName,
+                        ChargeDate = DateTime.Now,
+                        ApprovalFlag = false,
+                        FileTypeName = "Presupuesto",
+                        UserId = accountsData.Collaborator,
+                        AreaId = accountsData.Area,
+                        ChargeTypeId = accountsData.ChargeTypeAccounts,
+                        YearData = accountsData.YearAccounts,
+                    };
+                    int fileLogId = FileLogService.SaveFileLog(fileLogData);
+                    if (fileLogId != 0)
+                    {
+                        accountsData.FileLogId = fileLogId;
 
                         // Insertar el presupuesto anual.
+                        SaveDataDAO saveData = new SaveDataDAO();
                         successProcess = saveData.InsertAccounts(accountsData);
                         if (successProcess)
                         {
@@ -54,7 +67,7 @@
                             notFoundAccounts = ReadDataService.GetNotFoundAccountsBIF(accountsData);
                             if (notFoundAccounts != null && notFoundAccounts.Count > 0)
                             {
-                                deleteData.DeleteAccounts(accountsData);
+                                BudgetService.DeleteAccounts(accountsData);
                                 successProcess = false;
                             }
                             else
@@ -102,23 +115,41 @@
                 {
                     SaveDataDAO saveData = new SaveDataDAO();
 
-                    // Insertar el presupuesto/ajuste manual.
-                    successProcess = saveData.InsertManualBudget(accountsData);
-                    if (successProcess)
+                    // Guardar la información del archivo que se está cargando.
+                    FileLogData fileLogData = new FileLogData()
                     {
-                        // Insertar la información en la tabla de hechos de las cuentas/cecos.
-                        successProcess = saveData.SaveFactAccountsManual(accountsData);
+                        FileName = accountsData.FileName,
+                        ChargeDate = DateTime.Now,
+                        ApprovalFlag = false,
+                        FileTypeName = "Ajuste manual",
+                        UserId = accountsData.Collaborator,
+                        AreaId = accountsData.Area,
+                        ChargeTypeId = accountsData.ChargeTypeAccounts,
+                        YearData = accountsData.YearAccounts,
+                    };
+                    int fileLogId = FileLogService.SaveFileLog(fileLogData);
+                    if (fileLogId != 0)
+                    {
+                        accountsData.FileLogId = fileLogId;
 
-                        // Actualizar la tabla de hechos de la proyección.
+                        // Insertar el presupuesto/ajuste manual.
+                        successProcess = saveData.InsertManualBudget(accountsData);
                         if (successProcess)
                         {
-                            UpdateDataDAO updateData = new UpdateDataDAO();
-                            int yearAccounts = accountsData.YearAccounts;
-                            int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
-                            string chargeTypeName = accountsData.ChargeTypeName;
-                            chargeTypeName = chargeTypeName.ToLower();
-                            chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
-                            successProcess = updateData.UpdateFactProjection(yearAccounts, chargeTypeAccounts, chargeTypeName);
+                            // Insertar la información en la tabla de hechos de las cuentas/cecos.
+                            successProcess = saveData.SaveFactAccountsManual(accountsData);
+
+                            // Actualizar la tabla de hechos de la proyección.
+                            if (successProcess)
+                            {
+                                UpdateDataDAO updateData = new UpdateDataDAO();
+                                int yearAccounts = accountsData.YearAccounts;
+                                int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
+                                string chargeTypeName = accountsData.ChargeTypeName;
+                                chargeTypeName = chargeTypeName.ToLower();
+                                chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
+                                successProcess = updateData.UpdateFactProjection(yearAccounts, chargeTypeAccounts, chargeTypeName);
+                            }
                         }
                     }
                 }
@@ -164,61 +195,82 @@
         /// <summary>
         /// Método utilizado para guardar la base asociada al volumen.
         /// </summary>
-        /// <param name="fileStream">Información asociada al archivo.</param>
-        /// <param name="fileExtension">Extensión del archivo.</param>
-        /// <param name="yearData">Año de carga.</param>
-        /// <param name="chargeTypeData">Tipo de carga.</param>
-        /// <param name="chargeTypeName">Nombre asociado al tipo de carga.</param>
+        /// <param name="volumeData">Objeto auxiliar en el guardado de la información del volumen.</param>
         /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public static bool VolumenInformation(Stream fileStream, string fileExtension, int yearData, int chargeTypeData, string chargeTypeName)
+        public static bool VolumenInformation(VolumeDataRequest volumeData)
         {
             bool successProcess = false;
             try
             {
-                var accountsTable = CommonService.ReadFile(fileStream, fileExtension);
-                if (accountsTable.Tables.Count > 0)
+                if (volumeData != null)
                 {
-                    string exerciseType = string.Empty;
-                    DeleteDataDAO deleteData = new DeleteDataDAO();
-                    SaveDataDAO saveData = new SaveDataDAO();
-                    UpdateDataDAO updateData = new UpdateDataDAO();
-                    chargeTypeName = chargeTypeName.ToLower();
-                    bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
-                    if (bpExercise)
+                    int yearData = volumeData.YearData;
+                    int chargeTypeData = volumeData.ChargeType;
+                    string chargeTypeName = volumeData.ChargeTypeName;
+                    HttpPostedFileBase fileInfo = volumeData.FileData;
+                    string fileExtension = Path.GetExtension(fileInfo.FileName);
+                    var accountsTable = CommonService.ReadFile(fileInfo.InputStream, fileExtension);
+                    if (accountsTable.Tables.Count > 0)
                     {
-                        exerciseType = "BP";
-                        successProcess = deleteData.DeleteVolumeBP(yearData, chargeTypeData);
-                        if (successProcess)
+                        string exerciseType = string.Empty;
+                        DeleteDataDAO deleteData = new DeleteDataDAO();
+                        SaveDataDAO saveData = new SaveDataDAO();
+                        UpdateDataDAO updateData = new UpdateDataDAO();
+
+                        // Guardar la información del archivo que se está cargando.
+                        FileLogData fileLogData = new FileLogData()
                         {
-                            successProcess = saveData.BulkInsertVolumenBP(accountsTable.Tables[0], yearData, chargeTypeData);
-                            if (successProcess)
+                            FileName = fileInfo.FileName,
+                            ChargeDate = DateTime.Now,
+                            ApprovalFlag = false,
+                            FileTypeName = "Volumen",
+                            UserId = volumeData.Collaborator,
+                            ChargeTypeId = chargeTypeData,
+                            YearData = yearData,
+                            DefaultArea = true,
+                        };
+                        int fileLogId = FileLogService.SaveFileLog(fileLogData);
+                        if (fileLogId != 0)
+                        {
+                            chargeTypeName = chargeTypeName.ToLower();
+                            bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
+                            if (bpExercise)
                             {
-                                successProcess = deleteData.DeleteChannelPercentages(yearData, exerciseType);
+                                exerciseType = "BP";
+                                successProcess = deleteData.DeleteVolumeBP(yearData, chargeTypeData);
                                 if (successProcess)
                                 {
-                                    successProcess = saveData.InsertChannelPercentages(yearData, chargeTypeData, exerciseType);
+                                    successProcess = saveData.BulkInsertVolumenBP(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId);
                                     if (successProcess)
                                     {
-                                        successProcess = updateData.UpdateFactTblBP(yearData, chargeTypeData);
+                                        successProcess = deleteData.DeleteChannelPercentages(yearData, exerciseType);
+                                        if (successProcess)
+                                        {
+                                            successProcess = saveData.InsertChannelPercentages(yearData, chargeTypeData, exerciseType);
+                                            if (successProcess)
+                                            {
+                                                successProcess = updateData.UpdateFactTblBP(yearData, chargeTypeData);
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                    else
-                    {
-                        exerciseType = "Rolling";
-                        successProcess = deleteData.DeleteVolume(yearData, chargeTypeData);
-                        if (successProcess)
-                        {
-                            successProcess = saveData.BulkInsertVolumen(accountsTable.Tables[0], yearData, chargeTypeData);
-                        }
-                    }
+                            else
+                            {
+                                exerciseType = "Rolling";
+                                successProcess = deleteData.DeleteVolume(yearData, chargeTypeData);
+                                if (successProcess)
+                                {
+                                    successProcess = saveData.BulkInsertVolumen(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId);
+                                }
+                            }
 
-                    // Actualizar la tabla de hechos de la proyección.
-                    if (successProcess)
-                    {
-                        successProcess = updateData.UpdateFactProjection(yearData, chargeTypeData, exerciseType);
+                            // Actualizar la tabla de hechos de la proyección.
+                            if (successProcess)
+                            {
+                                successProcess = updateData.UpdateFactProjection(yearData, chargeTypeData, exerciseType);
+                            }
+                        }
                     }
                 }
             }
@@ -234,94 +286,70 @@
         /// <summary>
         /// Método utilizado para cargar el documento asociado al detalle de la promotoria.
         /// </summary>
-        /// <param name="fileStream">Información asociada al archivo.</param>
-        /// <param name="fileExtension">Extensión del archivo.</param>
-        /// <param name="yearData">Año de carga.</param>
-        /// <param name="chargeTypeData">Tipo de carga.</param>
-        /// <param name="chargeTypeName">Nombre asociado al tipo de carga.</param>
+        /// <param name="promotoriaData">Objeto auxiliar en el guardado de la información de la promotoria.</param>
         /// <returns>Respuesta al realizar el proceso de la carga de la promotoria.</returns>
-        public static UploadResponse PromotoriaInformation(Stream fileStream, string fileExtension, int yearData, int chargeTypeData, string chargeTypeName)
+        public static UploadResponse PromotoriaInformation(PromotoriaDataRequest promotoriaData)
         {
             bool responseFlag = false;
             string errorMsg = string.Empty;
             try
             {
-                var accountsTable = CommonService.ReadFile(fileStream, fileExtension);
-                if (accountsTable.Tables.Count > 0)
+                if (promotoriaData != null)
                 {
-                    // Obtener la promotoria de acuerdo al año y el ejercicio.
-                    ReadDataDAO readData = new ReadDataDAO();
-                    List<PromotoriaDB> promotoriaFromDB = readData.GetPromotoria(yearData, chargeTypeData);
-                    if (promotoriaFromDB != null && promotoriaFromDB.Count > 0)
+                    int yearData = promotoriaData.YearData;
+                    int chargeTypeData = promotoriaData.ChargeType;
+                    string chargeTypeName = promotoriaData.ChargeTypeName;
+                    HttpPostedFileBase fileInfo = promotoriaData.FileData;
+                    string fileExtension = Path.GetExtension(fileInfo.FileName);
+                    var accountsTable = CommonService.ReadFile(fileInfo.InputStream, fileExtension);
+                    if (accountsTable.Tables.Count > 0)
                     {
-                        var fileData = accountsTable.Tables[0];
-                        List<PromotoriaFile> promotoriaFromFile = PromotoriaFileMapping(fileData);
-                        int firstMonth = 0;
-                        int lastMonth = 12;
-                        int errorsCount = 0;
-                        string monthsErrors = string.Empty;
-                        if (chargeTypeName.Contains("+"))
+                        // Obtener la promotoria de acuerdo al año y el ejercicio.
+                        List<PromotoriaDB> promotoriaFromDB = PromotoriaService.GetPromotoria(yearData, chargeTypeData);
+                        if (promotoriaFromDB != null && promotoriaFromDB.Count > 0)
                         {
-                            string[] onlyDigits = Regex.Split(chargeTypeName, @"\D+").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
-                            if (onlyDigits.Length > 1)
+                            var fileData = accountsTable.Tables[0];
+                            PromotoriaValidateFile(fileData, chargeTypeName, promotoriaFromDB, ref responseFlag, ref errorMsg);
+                            if (responseFlag)
                             {
-                                firstMonth = Convert.ToInt32(onlyDigits[0]);
-                            }
-                        }
-
-                        for (firstMonth++; firstMonth < lastMonth + 1; firstMonth++)
-                        {
-                            string monthName = CultureInfo.CreateSpecificCulture("es").DateTimeFormat.GetMonthName(firstMonth);
-                            string montTitleCase = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(monthName);
-                            Type t = typeof(PromotoriaFile);
-                            PropertyInfo prop = t.GetProperty(montTitleCase);
-                            var singlePromotoriaFile = promotoriaFromFile.Select(file => (double)prop.GetValue(file)).Sum();
-                            var findPromotoriaDB = promotoriaFromDB.Where(x => x.MonthNumber == firstMonth).FirstOrDefault();
-                            var singlePromotoriaDB = findPromotoriaDB != null ? findPromotoriaDB.Budget : default;
-                            if (singlePromotoriaFile.ToString("C6") != singlePromotoriaDB.ToString("C6"))
-                            {
-                                errorsCount++;
-                                monthsErrors += string.Format("{0}{1}|{2}|{3}", "\n", montTitleCase, singlePromotoriaFile.ToString("C6"), singlePromotoriaDB.ToString("C6"));
-                            }
-
-                            responseFlag = errorsCount == 0;
-                            if (!responseFlag)
-                            {
-                                errorMsg = string.Format("Existen diferencias entre el presupuesto existente contra lo cargado: {0}", monthsErrors);
-                            }
-                        }
-
-                        // Eliminar la promotoria si existe información de este año y tipo de carga.
-                        if (responseFlag)
-                        {
-                            DeleteDataDAO deleteData = new DeleteDataDAO();
-                            bool successDelete = deleteData.DeletePromotoria(yearData, chargeTypeData);
-                            if (successDelete)
-                            {
-                                SaveDataDAO saveData = new SaveDataDAO();
-                                UpdateDataDAO updateData = new UpdateDataDAO();
-
-                                // Insertar la información de la promotoria.
-                                responseFlag = saveData.BulkInsertPromotoria(fileData, yearData, chargeTypeData);
-                                if (responseFlag)
+                                // Guardar la información del archivo que se está cargando.
+                                FileLogData fileLogData = new FileLogData()
                                 {
-                                    chargeTypeName = chargeTypeName.ToLower();
-                                    bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
-                                    string exerciseType = bpExercise ? "BP" : "Rolling";
+                                    FileName = fileInfo.FileName,
+                                    ChargeDate = DateTime.Now,
+                                    ApprovalFlag = false,
+                                    FileTypeName = "Promotoria",
+                                    UserId = promotoriaData.Collaborator,
+                                    ChargeTypeId = chargeTypeData,
+                                    YearData = yearData,
+                                    DefaultArea = true,
+                                };
+                                int fileLogId = FileLogService.SaveFileLog(fileLogData);
+                                if (fileLogId != 0)
+                                {
+                                    // Insertar la información de la promotoria.
+                                    responseFlag = PromotoriaService.BulkInsertPromotoria(fileData, yearData, chargeTypeData, fileLogId);
+                                    if (responseFlag)
+                                    {
+                                        chargeTypeName = chargeTypeName.ToLower();
+                                        bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
+                                        string exerciseType = bpExercise ? "BP" : "Rolling";
 
-                                    // Actualizar la tabla de hechos de la proyección para este año y tipo de carga.
-                                    responseFlag = updateData.UpdateFactProjection(yearData, chargeTypeData, exerciseType);
+                                        // Actualizar la tabla de hechos de la proyección para este año y tipo de carga.
+                                        UpdateDataDAO updateData = new UpdateDataDAO();
+                                        responseFlag = updateData.UpdateFactProjection(yearData, chargeTypeData, exerciseType);
+                                    }
+                                    else
+                                    {
+                                        errorMsg = "Ocurrió un error al guardar el archivo de la promotoria";
+                                    }
                                 }
                             }
-                            else
-                            {
-                                errorMsg = "Ocurrió un error al guardar el archivo de la promotoria";
-                            }
                         }
-                    }
-                    else
-                    {
-                        errorMsg = "No se ha cargado el presupuesto para el año y tipo de carga seleccionados.";
+                        else
+                        {
+                            errorMsg = "No se ha cargado el presupuesto para el año y tipo de carga seleccionados.";
+                        }
                     }
                 }
             }
@@ -429,25 +457,50 @@
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información asociada a un área dentro del catálogo.
+        /// Método utilizado para validar que la información de la promotoría coincida con lo cargado en el presupuesto.
         /// </summary>
-        /// <param name="areaInformation">Objeto que contiene la información general del área.</param>
-        /// <returns>Devuelve el id asociado al área recién insertada en la Base de Datos.</returns>
-        public static int SaveAreaInformation(AreaData areaInformation)
+        /// <param name="fileData">Información del archivo que se está cargando.</param>
+        /// <param name="chargeTypeName">Nombre del tipo de carga.</param>
+        /// <param name="promotoriaFromDB">Información de la promotoría cargada en el presupuesto.</param>
+        /// <param name="responseFlag">Bandera para saber si la información es válida.</param>
+        /// <param name="errorMsg">Mensaje de error en caso de que la validación no sea correcta.</param>
+        private static void PromotoriaValidateFile(DataTable fileData, string chargeTypeName, List<PromotoriaDB> promotoriaFromDB, ref bool responseFlag, ref string errorMsg)
         {
-            int areaId = 0;
-            try
+            List<PromotoriaFile> promotoriaFromFile = PromotoriaFileMapping(fileData);
+            int firstMonth = 0;
+            int lastMonth = 12;
+            int errorsCount = 0;
+            string monthsErrors = string.Empty;
+            if (chargeTypeName.Contains("+"))
             {
-                SaveDataDAO connection = new SaveDataDAO();
-                areaId = connection.SaveAreaInformation(areaInformation);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("SaveAreaInformation()." + "Error: " + ex.Message);
+                string[] onlyDigits = Regex.Split(chargeTypeName, @"\D+").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+                if (onlyDigits.Length > 1)
+                {
+                    firstMonth = Convert.ToInt32(onlyDigits[0]);
+                }
             }
 
-            return areaId;
+            for (firstMonth++; firstMonth < lastMonth + 1; firstMonth++)
+            {
+                string monthName = CultureInfo.CreateSpecificCulture("es").DateTimeFormat.GetMonthName(firstMonth);
+                string montTitleCase = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(monthName);
+                Type t = typeof(PromotoriaFile);
+                PropertyInfo prop = t.GetProperty(montTitleCase);
+                var singlePromotoriaFile = promotoriaFromFile.Select(file => (double)prop.GetValue(file)).Sum();
+                var findPromotoriaDB = promotoriaFromDB.Where(x => x.MonthNumber == firstMonth).FirstOrDefault();
+                var singlePromotoriaDB = findPromotoriaDB != null ? findPromotoriaDB.Budget : default;
+                if (singlePromotoriaFile.ToString("C6") != singlePromotoriaDB.ToString("C6"))
+                {
+                    errorsCount++;
+                    monthsErrors += string.Format("{0}{1}|{2}|{3}", "\n", montTitleCase, singlePromotoriaFile.ToString("C6"), singlePromotoriaDB.ToString("C6"));
+                }
+
+                responseFlag = errorsCount == 0;
+                if (!responseFlag)
+                {
+                    errorMsg = string.Format("Existen diferencias entre el presupuesto existente contra lo cargado: {0}", monthsErrors);
+                }
+            }
         }
     }
 }

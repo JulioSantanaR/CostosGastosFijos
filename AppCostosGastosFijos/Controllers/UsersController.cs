@@ -6,6 +6,7 @@
     using System.Web.Mvc;
     using System.Web.Script.Serialization;
     using Business;
+    using Business.Services;
     using Data.Models;
     using Data.Models.Request;
     using Data.Models.Response;
@@ -66,7 +67,7 @@
             try
             {
                 List<UserRole> userRoles = ReadDataService.GetUserRoles();
-                List<AreaData> areas = ReadDataService.GetAllAreas(true);
+                List<AreaData> areas = AreasService.GetAllAreas(true);
                 if(userId.HasValue && userId.Value > 0)
                 {
                     UserData userInformation = ReadDataService.GetUserById(userId.Value);
@@ -149,7 +150,7 @@
             try
             {
                 // Eliminar la relación entre usuario y área(s).
-                successResponse = DeleteDataService.DeleteUserAreas(collaboratorId);
+                successResponse = AreasService.DeleteUserAreas(collaboratorId);
                 if (successResponse)
                 {
                     // Eliminar la información general del usuario.

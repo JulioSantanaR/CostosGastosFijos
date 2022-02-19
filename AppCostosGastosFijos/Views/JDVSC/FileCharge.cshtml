@@ -21,37 +21,34 @@
         <div class="col-auto">
             <select class="form-select selectYears" id="@string.Format("{0}Year", fileSection)"></select>
         </div>
-        <div class="col-auto">
-            <label for="colFormLabel" class="col-form-label fw-bold">Tipo de carga</label>
-        </div>
-        <div class="col-auto">
-            <select class="form-select" id="@string.Format("{0}ChargeType", fileSection)">
-                @if (chargeTypes != null && chargeTypes.Count > 0)
-                {
-                    for (int i = 0; i < chargeTypes.Count; i++)
+        @if (chargeTypes != null && chargeTypes.Count > 0)
+        {
+            <div class="col-auto">
+                <label for="colFormLabel" class="col-form-label fw-bold">Tipo de carga</label>
+            </div>
+            <div class="col-auto">
+                <select class="form-select" id="@string.Format("{0}ChargeType", fileSection)">
+                    @for (int i = 0; i < chargeTypes.Count; i++)
                     {
                         var singleChargeType = chargeTypes[i];
                         <option value="@singleChargeType.ChargeTypeId">@singleChargeType.ChargeTypeName</option>
                     }
-                }
 
-            </select>
-        </div>
+                </select>
+            </div>
+        }
 
-        @if (userInformation != null)
+        @if (userInformation != null && userInformation.Areas != null && userInformation.Areas.Count > 0)
         {
             <div class="col-auto">
                 <label for="colFormLabel" class="col-form-label fw-bold">Área</label>
             </div>
             <div class="col-auto">
                 <select class="form-select" id="areaData">
-                    @if (userInformation.Areas != null && userInformation.Areas.Count > 0)
+                    @for (int i = 0; i < userInformation.Areas.Count; i++)
                     {
-                        for (int i = 0; i < userInformation.Areas.Count; i++)
-                        {
-                            var singleInfo = userInformation.Areas[i];
-                            <option value="@singleInfo.AreaId" data-default_area="@singleInfo.DefaultArea">@singleInfo.NameArea</option>
-                        }
+                        var singleInfo = userInformation.Areas[i];
+                        <option value="@singleInfo.AreaId" data-default_area="@singleInfo.DefaultArea">@singleInfo.NameArea</option>
                     }
 
                 </select>
