@@ -3,7 +3,6 @@
  * @param {any} dataTableProperties Objeto que contiene las propiedades principales o necesarias para construir la tabla.
  */
 function BuildGenericDataTable(dataTableProperties) {
-    console.log("KKK");
     var tableTarget = dataTableProperties.tableTarget,
         requestUri = dataTableProperties.requestUri,
         columnsDefinition = dataTableProperties.columnsDefinition,
@@ -13,7 +12,8 @@ function BuildGenericDataTable(dataTableProperties) {
         afterInitFunctionCallBack = dataTableProperties.afterInitFunctionCallBack,
         columnOrder = dataTableProperties.columnOrder || 0,
         langUri = dataTableProperties.langUri,
-        extraParamFunctionCallBack = dataTableProperties.extraParamFunctionCallBack;
+        extraParamFunctionCallBack = dataTableProperties.extraParamFunctionCallBack,
+        hideColumn = dataTableProperties.hideColumn;
     var dataTableObject = $(tableTarget).DataTable({
         "language": { "url": langUri },
         serverSide: true,
@@ -65,6 +65,11 @@ function BuildGenericDataTable(dataTableProperties) {
         columnDefs: columnsDefinition,
         "order": [[columnOrder, "asc"]],
         "initComplete": function (settings, json) {
+            if (hideColumn !== undefined && hideColumn !== null) {
+                var api = new $.fn.dataTable.Api(settings);
+                api.columns([hideColumn.columnNumber]).visible(!hideColumn.visibility);
+            }
+
             CallBackFunctions(initFunctionCallBack);
         },
         "fnDrawCallback": function (oSettings) {

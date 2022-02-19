@@ -51,7 +51,11 @@ function FilesBuildTable() {
         initFunctionCallBack: filesInitCallBack,
         afterInitFunctionCallBack: filesInitCallBack,
         langUri: langUriDataTable,
-        extraParamFunctionCallBack: filesExtraParams
+        extraParamFunctionCallBack: filesExtraParams,
+        hideColumn: {
+            columnNumber: 1,
+            visibility: isCollaborator
+        }
     };
 
     var table = BuildGenericDataTable(dataTableProperties);
