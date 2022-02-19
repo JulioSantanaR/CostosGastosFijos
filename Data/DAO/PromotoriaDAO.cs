@@ -11,6 +11,9 @@
     using Data.Models;
     using Data.Repositories;
 
+    /// <summary>
+    /// Clase asociada al acceso a datos para manipular la información asociada a la promotoria.
+    /// </summary>
     public class PromotoriaDAO : CommonDAO
     {
         /// <summary>

@@ -49,7 +49,7 @@
                 List<int> areasToDelete = new List<int>();
                 List<int> areasToAdd = new List<int>();
                 ReadDataDAO readData = new ReadDataDAO();
-                var existingAreas = readData.UserAreas(null, userId);
+                var existingAreas = AreasService.UserAreas(null, userId);
                 if (existingAreas != null && existingAreas.Count > 0)
                 {
                     bool allAreas = areas.Any(x => x == 0);

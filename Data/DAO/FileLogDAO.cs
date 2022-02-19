@@ -42,49 +42,51 @@
                 if (dataTableInfo != null)
                 {
                     Open();
-                    SqlCommand sqlcmd = new SqlCommand();
-                    sqlcmd.Connection = Connection;
-                    sqlcmd.CommandType = CommandType.Text;
                     if (!dataTableInfo.GetTotalRowsCount)
                     {
                         string queryFileLogList = FileLogCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryFileLogList;
-                        sqlcmd.Parameters.AddWithValue("@rowsToSkip", dataTableInfo.RowsToSkip);
-                        sqlcmd.Parameters.AddWithValue("@numbersOfRows", dataTableInfo.NumberOfRows);
+                        SqlCommand sqlcmdList = new SqlCommand
+                        {
+                            Connection = Connection,
+                            CommandType = CommandType.Text,
+                            CommandText = queryFileLogList
+                        };
+                        sqlcmdList.Parameters.AddWithValue("@rowsToSkip", dataTableInfo.RowsToSkip);
+                        sqlcmdList.Parameters.AddWithValue("@numbersOfRows", dataTableInfo.NumberOfRows);
                         if (dataTableInfo.FileRequest != null)
                         {
                             if (dataTableInfo.FileRequest.FileTypeId.HasValue && dataTableInfo.FileRequest.FileTypeId.Value > 0)
                             {
-                                sqlcmd.Parameters.AddWithValue("@fileTypeId", dataTableInfo.FileRequest.FileTypeId.Value);
+                                sqlcmdList.Parameters.AddWithValue("@fileTypeId", dataTableInfo.FileRequest.FileTypeId.Value);
                             }
 
                             if (dataTableInfo.FileRequest.AreaId.HasValue && dataTableInfo.FileRequest.AreaId.Value > 0)
                             {
-                                sqlcmd.Parameters.AddWithValue("@areaId", dataTableInfo.FileRequest.AreaId.Value);
+                                sqlcmdList.Parameters.AddWithValue("@areaId", dataTableInfo.FileRequest.AreaId.Value);
                             }
 
                             if (dataTableInfo.FileRequest.ChargeTypeId.HasValue && dataTableInfo.FileRequest.ChargeTypeId.Value > 0)
                             {
-                                sqlcmd.Parameters.AddWithValue("@chargeTypeId", dataTableInfo.FileRequest.ChargeTypeId.Value);
+                                sqlcmdList.Parameters.AddWithValue("@chargeTypeId", dataTableInfo.FileRequest.ChargeTypeId.Value);
                             }
 
                             if (dataTableInfo.FileRequest.Year.HasValue && dataTableInfo.FileRequest.Year.Value > 0)
                             {
-                                sqlcmd.Parameters.AddWithValue("@year", dataTableInfo.FileRequest.Year.Value);
+                                sqlcmdList.Parameters.AddWithValue("@year", dataTableInfo.FileRequest.Year.Value);
                             }
 
                             if (dataTableInfo.FileRequest.CollaboratorId.HasValue && dataTableInfo.FileRequest.CollaboratorId.Value > 0)
                             {
-                                sqlcmd.Parameters.AddWithValue("@collaboratorId", dataTableInfo.FileRequest.CollaboratorId.Value);
+                                sqlcmdList.Parameters.AddWithValue("@collaboratorId", dataTableInfo.FileRequest.CollaboratorId.Value);
                             }
                         }
 
                         if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
                         {
-                            sqlcmd.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
+                            sqlcmdList.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
                         }
 
-                        var reader = sqlcmd.ExecuteReader();
+                        var reader = sqlcmdList.ExecuteReader();
                         var typeFileExists = HasColumn(reader, "tipoArchivo");
                         var collaboratorNameExists = HasColumn(reader, "nombreColaborador");
                         var areaNameExists = HasColumn(reader, "nombreArea");
@@ -102,8 +104,46 @@
                     {
                         dataTableInfo.GetTotalRowsCount = true;
                         string queryFileLogCount = FileLogCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryFileLogCount;
-                        fileLogCount = Convert.ToInt32(sqlcmd.ExecuteScalar());
+                        SqlCommand sqlcmdCount = new SqlCommand
+                        {
+                            Connection = Connection,
+                            CommandType = CommandType.Text,
+                            CommandText = queryFileLogCount
+                        };
+                        if (dataTableInfo.FileRequest != null)
+                        {
+                            if (dataTableInfo.FileRequest.FileTypeId.HasValue && dataTableInfo.FileRequest.FileTypeId.Value > 0)
+                            {
+                                sqlcmdCount.Parameters.AddWithValue("@fileTypeId", dataTableInfo.FileRequest.FileTypeId.Value);
+                            }
+
+                            if (dataTableInfo.FileRequest.AreaId.HasValue && dataTableInfo.FileRequest.AreaId.Value > 0)
+                            {
+                                sqlcmdCount.Parameters.AddWithValue("@areaId", dataTableInfo.FileRequest.AreaId.Value);
+                            }
+
+                            if (dataTableInfo.FileRequest.ChargeTypeId.HasValue && dataTableInfo.FileRequest.ChargeTypeId.Value > 0)
+                            {
+                                sqlcmdCount.Parameters.AddWithValue("@chargeTypeId", dataTableInfo.FileRequest.ChargeTypeId.Value);
+                            }
+
+                            if (dataTableInfo.FileRequest.Year.HasValue && dataTableInfo.FileRequest.Year.Value > 0)
+                            {
+                                sqlcmdCount.Parameters.AddWithValue("@year", dataTableInfo.FileRequest.Year.Value);
+                            }
+
+                            if (dataTableInfo.FileRequest.CollaboratorId.HasValue && dataTableInfo.FileRequest.CollaboratorId.Value > 0)
+                            {
+                                sqlcmdCount.Parameters.AddWithValue("@collaboratorId", dataTableInfo.FileRequest.CollaboratorId.Value);
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                        {
+                            sqlcmdCount.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
+                        }
+
+                        fileLogCount = Convert.ToInt32(sqlcmdCount.ExecuteScalar());
                     }
 
                     Close();
@@ -134,72 +174,77 @@
             {
                 if (dataTableInfo.GetTotalRowsCount)
                 {
-                    query.Append(" SELECT COUNT(*) AS countFiles FROM [dbo].[Tbl_LogArchivos] ");
+                    query.Append(" SELECT COUNT(*) AS countFiles FROM ( ");
                 }
                 else
                 {
                     query.Append(" SELECT * FROM ( ");
-                    query.Append("  SELECT logFiles.*, catArchivos.tipoArchivo, catColab.nombre AS nombreColaborador, ");
-                    query.Append("   catAreas.nombre AS nombreArea, catCharges.tipoCarga, ROW_NUMBER() OVER ( ");
-                    if (!string.IsNullOrEmpty(dataTableInfo.SortName))
+                }
+
+                query.Append("  SELECT logFiles.*, catArchivos.tipoArchivo, catColab.nombre AS nombreColaborador, ");
+                query.Append("   catAreas.nombre AS nombreArea, catCharges.tipoCarga, ROW_NUMBER() OVER ( ");
+                if (!string.IsNullOrEmpty(dataTableInfo.SortName))
+                {
+                    query.Append("ORDER BY ").Append(dataTableInfo.SortName);
+                    if (!string.IsNullOrEmpty(dataTableInfo.SortOrder))
                     {
-                        query.Append("ORDER BY ").Append(dataTableInfo.SortName);
-                        if (!string.IsNullOrEmpty(dataTableInfo.SortOrder))
-                        {
-                            query.Append(" ").Append(dataTableInfo.SortOrder);
-                        }
+                        query.Append(" ").Append(dataTableInfo.SortOrder);
                     }
-                    else
+                }
+                else
+                {
+                    query.Append(" ORDER BY cve_LogArchivo ");
+                }
+
+                query.Append(" ) AS rowNumber ");
+                query.Append("  FROM [dbo].[Tbl_LogArchivos] logFiles ");
+                query.Append("  INNER JOIN [dbo].[Cat_TiposDeArchivos] catArchivos ON catArchivos.cve_TipoArchivo = logFiles.cve_TipoArchivo ");
+                query.Append("  INNER JOIN [dbo].[Cat_Colaboradores] catColab ON catColab.cve_Colaborador = logFiles.cve_Colaborador ");
+                query.Append("  INNER JOIN [dbo].[Cat_Areas] catAreas ON catAreas.cve_Area = logFiles.cve_Area ");
+                query.Append("  INNER JOIN [B20CQ-004].[JDV_SC_BIF_Consolidado].[dbo].[Cat_TiposCarga] catCharges ON catCharges.cve_Tipo_Carga = logFiles.cve_TipoCarga ");
+                query.Append(" WHERE 1 = 1 ");
+                if (dataTableInfo.FileRequest != null)
+                {
+                    if (dataTableInfo.FileRequest.FileTypeId.HasValue && dataTableInfo.FileRequest.FileTypeId.Value > 0)
                     {
-                        query.Append(" ORDER BY cve_LogArchivo ");
-                    }
-
-                    query.Append(" ) AS rowNumber ");
-                    query.Append("  FROM [dbo].[Tbl_LogArchivos] logFiles ");
-                    query.Append("  INNER JOIN [dbo].[Cat_TiposDeArchivos] catArchivos ON catArchivos.cve_TipoArchivo = logFiles.cve_TipoArchivo ");
-                    query.Append("  INNER JOIN [dbo].[Cat_Colaboradores] catColab ON catColab.cve_Colaborador = logFiles.cve_Colaborador ");
-                    query.Append("  INNER JOIN [dbo].[Cat_Areas] catAreas ON catAreas.cve_Area = logFiles.cve_Area ");
-                    query.Append("  INNER JOIN [B20CQ-004].[JDV_SC_BIF_Consolidado].[dbo].[Cat_TiposCarga] catCharges ON catCharges.cve_Tipo_Carga = logFiles.cve_TipoCarga ");
-                    query.Append(" WHERE 1 = 1 ");
-                    if (dataTableInfo.FileRequest != null)
-                    {
-                        if (dataTableInfo.FileRequest.FileTypeId.HasValue && dataTableInfo.FileRequest.FileTypeId.Value > 0)
-                        {
-                            query.Append(" AND logFiles.cve_TipoArchivo = @fileTypeId ");
-                        }
-
-                        if (dataTableInfo.FileRequest.AreaId.HasValue && dataTableInfo.FileRequest.AreaId.Value > 0)
-                        {
-                            query.Append(" AND logFiles.cve_Area = @areaId ");
-                        }
-
-                        if (dataTableInfo.FileRequest.ChargeTypeId.HasValue && dataTableInfo.FileRequest.ChargeTypeId.Value > 0)
-                        {
-                            query.Append(" AND logFiles.cve_TipoCarga = @chargeTypeId ");
-                        }
-
-                        if (dataTableInfo.FileRequest.Year.HasValue && dataTableInfo.FileRequest.Year.Value > 0)
-                        {
-                            query.Append(" AND logFiles.anio = @year ");
-                        }
-
-                        if (dataTableInfo.FileRequest.CollaboratorId.HasValue && dataTableInfo.FileRequest.CollaboratorId.Value > 0)
-                        {
-                            query.Append(" AND logFiles.cve_Colaborador = @collaboratorId ");
-                        }
+                        query.Append(" AND logFiles.cve_TipoArchivo = @fileTypeId ");
                     }
 
-                    if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                    if (dataTableInfo.FileRequest.AreaId.HasValue && dataTableInfo.FileRequest.AreaId.Value > 0)
                     {
-                        query.Append(" AND CHARINDEX(REPLACE(LTRIM(RTRIM(LOWER(@searchValue))), ' ', ''), ");
-                        query.Append("  REPLACE(LTRIM(RTRIM(LOWER( ");
-                        query.Append("      ISNULL(nombreArchivo, '') + ISNULL(catColab.nombre, '') + ISNULL(catAreas.nombre, '') ");
-                        query.Append("      + ISNULL(tipoArchivo, '') + ISNULL(tipoCarga, '') ");
-                        query.Append("  ))), ' ', '') ");
-                        query.Append(" ) > 0 ");
+                        query.Append(" AND logFiles.cve_Area = @areaId ");
                     }
 
-                    query.Append(" ) t WHERE rowNumber BETWEEN (@rowsToSkip + 1) AND (@rowsToSkip + @numbersOfRows) ");
+                    if (dataTableInfo.FileRequest.ChargeTypeId.HasValue && dataTableInfo.FileRequest.ChargeTypeId.Value > 0)
+                    {
+                        query.Append(" AND logFiles.cve_TipoCarga = @chargeTypeId ");
+                    }
+
+                    if (dataTableInfo.FileRequest.Year.HasValue && dataTableInfo.FileRequest.Year.Value > 0)
+                    {
+                        query.Append(" AND logFiles.anio = @year ");
+                    }
+
+                    if (dataTableInfo.FileRequest.CollaboratorId.HasValue && dataTableInfo.FileRequest.CollaboratorId.Value > 0)
+                    {
+                        query.Append(" AND logFiles.cve_Colaborador = @collaboratorId ");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                {
+                    query.Append(" AND CHARINDEX(REPLACE(LTRIM(RTRIM(LOWER(@searchValue))), ' ', ''), ");
+                    query.Append("  REPLACE(LTRIM(RTRIM(LOWER( ");
+                    query.Append("      ISNULL(nombreArchivo, '') + ISNULL(catColab.nombre, '') + ISNULL(catAreas.nombre, '') ");
+                    query.Append("      + ISNULL(tipoArchivo, '') + ISNULL(tipoCarga, '') ");
+                    query.Append("  ))), ' ', '') ");
+                    query.Append(" ) > 0 ");
+                }
+
+                query.Append(" ) t ");
+                if (!dataTableInfo.GetTotalRowsCount)
+                {
+                    query.Append(" WHERE rowNumber BETWEEN (@rowsToSkip + 1) AND (@rowsToSkip + @numbersOfRows) ");
                 }
             }
 

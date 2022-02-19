@@ -10,6 +10,9 @@
     using Data.Models.Request;
     using Data.Models.Response;
 
+    /// <summary>
+    /// Clase asociada al acceso a datos para manipular la información asociada al catálogo de áreas.
+    /// </summary>
     public class AreasDAO : CommonDAO
     {
         /// <summary>
@@ -28,6 +31,43 @@
         public AreasDAO()
         {
             ConnectionString = connectionString;
+        }
+
+        /// <summary>
+        /// Método utilizado para obtener las áreas asociadas a un usuario.
+        /// </summary>
+        /// <param name="username">Nombre de usuario.</param>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve la lista de áreas asociadas a un usuario/colaborador.</returns>
+        public List<AreaData> UserAreas(string username = "", int? userId = null)
+        {
+            List<AreaData> userAreas = null;
+            try
+            {
+                StringBuilder query = new StringBuilder();
+                query.Append("SELECT colab.*, area.nombre AS nameArea, area.cve_Area, area.defaultArea FROM [dbo].[Cat_Colaboradores] AS colab ");
+                query.Append("INNER JOIN [dbo].[Cat_ColaboradorAreas] colabArea ON colabArea.cve_Colaborador = colab.cve_colaborador ");
+                query.Append("INNER JOIN [dbo].[Cat_Areas] area ON colabArea.cve_Area = area.cve_Area ");
+                query.Append(" WHERE 1 = 1 ");
+                if (!string.IsNullOrEmpty(username))
+                {
+                    query.Append(" AND usuario = @username ");
+                }
+
+                if (userId.HasValue && userId.Value > 0)
+                {
+                    query.Append(" AND colab.cve_Colaborador = @userId ");
+                }
+
+                query.Append("ORDER BY area.nombre ASC ");
+                userAreas = GetUserAreas(query.ToString(), username, userId);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return userAreas;
         }
 
         /// <summary>
@@ -201,21 +241,23 @@
                 if (dataTableInfo != null)
                 {
                     Open();
-                    SqlCommand sqlcmd = new SqlCommand();
-                    sqlcmd.Connection = Connection;
-                    sqlcmd.CommandType = CommandType.Text;
                     if (!dataTableInfo.GetTotalRowsCount)
                     {
                         string queryAreasList = AreasCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryAreasList;
-                        sqlcmd.Parameters.AddWithValue("@rowsToSkip", dataTableInfo.RowsToSkip);
-                        sqlcmd.Parameters.AddWithValue("@numbersOfRows", dataTableInfo.NumberOfRows);
+                        SqlCommand sqlcmdList = new SqlCommand
+                        {
+                            Connection = Connection,
+                            CommandType = CommandType.Text,
+                            CommandText = queryAreasList
+                        };
+                        sqlcmdList.Parameters.AddWithValue("@rowsToSkip", dataTableInfo.RowsToSkip);
+                        sqlcmdList.Parameters.AddWithValue("@numbersOfRows", dataTableInfo.NumberOfRows);
                         if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
                         {
-                            sqlcmd.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
+                            sqlcmdList.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
                         }
 
-                        var reader = sqlcmd.ExecuteReader();
+                        var reader = sqlcmdList.ExecuteReader();
                         while (reader.Read())
                         {
                             AreaData singleArea = Mapping.MapArea(reader);
@@ -229,8 +271,18 @@
                     {
                         dataTableInfo.GetTotalRowsCount = true;
                         string queryAreasCount = AreasCommonQuery(dataTableInfo);
-                        sqlcmd.CommandText = queryAreasCount;
-                        areasCount = Convert.ToInt32(sqlcmd.ExecuteScalar());
+                        SqlCommand sqlcmdCount = new SqlCommand
+                        {
+                            Connection = Connection,
+                            CommandType = CommandType.Text,
+                            CommandText = queryAreasCount
+                        };
+                        if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                        {
+                            sqlcmdCount.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
+                        }
+
+                        areasCount = Convert.ToInt32(sqlcmdCount.ExecuteScalar());
                     }
 
                     Close();
@@ -261,37 +313,42 @@
             {
                 if (dataTableInfo.GetTotalRowsCount)
                 {
-                    query.Append(" SELECT COUNT(*) AS countAreas FROM Cat_Areas WHERE cve_Area <> 0 ");
+                    query.Append(" SELECT COUNT(*) AS countAreas FROM ( ");
                 }
                 else
                 {
                     query.Append(" SELECT * FROM ( ");
-                    query.Append("  SELECT *, ROW_NUMBER() OVER (");
-                    if (!string.IsNullOrEmpty(dataTableInfo.SortName))
-                    {
-                        query.Append("ORDER BY ").Append(dataTableInfo.SortName);
-                        if (!string.IsNullOrEmpty(dataTableInfo.SortOrder))
-                        {
-                            query.Append(" ").Append(dataTableInfo.SortOrder);
-                        }
-                    }
-                    else
-                    {
-                        query.Append(" ORDER BY cve_Area ");
-                    }
+                }
 
-                    query.Append(" ) AS rowNumber ");
-                    query.Append("  FROM [dbo].[Cat_Areas] WHERE cve_Area <> 0 ");
-                    if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                query.Append("  SELECT *, ROW_NUMBER() OVER (");
+                if (!string.IsNullOrEmpty(dataTableInfo.SortName))
+                {
+                    query.Append("ORDER BY ").Append(dataTableInfo.SortName);
+                    if (!string.IsNullOrEmpty(dataTableInfo.SortOrder))
                     {
-                        query.Append(" WHERE CHARINDEX(REPLACE(LTRIM(RTRIM(LOWER(@searchValue))), ' ', ''), ");
-                        query.Append("  REPLACE(LTRIM(RTRIM(LOWER( ");
-                        query.Append("      ISNULL(nombre, '') ");
-                        query.Append("  ))), ' ', '') ");
-                        query.Append(" ) > 0 ");
+                        query.Append(" ").Append(dataTableInfo.SortOrder);
                     }
+                }
+                else
+                {
+                    query.Append(" ORDER BY cve_Area ");
+                }
 
-                    query.Append(" ) t WHERE rowNumber BETWEEN (@rowsToSkip + 1) AND (@rowsToSkip + @numbersOfRows) ");
+                query.Append(" ) AS rowNumber ");
+                query.Append("  FROM [dbo].[Cat_Areas] WHERE cve_Area <> 0 ");
+                if (!string.IsNullOrEmpty(dataTableInfo.SearchValue) && dataTableInfo.SearchValue.Length >= 3)
+                {
+                    query.Append(" AND CHARINDEX(REPLACE(LTRIM(RTRIM(LOWER(@searchValue))), ' ', ''), ");
+                    query.Append("  REPLACE(LTRIM(RTRIM(LOWER( ");
+                    query.Append("      ISNULL(nombre, '') ");
+                    query.Append("  ))), ' ', '') ");
+                    query.Append(" ) > 0 ");
+                }
+
+                query.Append(" ) t ");
+                if (!dataTableInfo.GetTotalRowsCount)
+                {
+                    query.Append(" WHERE rowNumber BETWEEN (@rowsToSkip + 1) AND (@rowsToSkip + @numbersOfRows) ");
                 }
             }
 
@@ -369,6 +426,58 @@
             }
 
             return successDelete;
+        }
+
+        /// <summary>
+        /// Método utilizado para mapear la información del catálogo de áreas.
+        /// </summary>
+        /// <param name="query">Consulta SQL para recuperar el catálogo de áreas.</param>
+        /// <param name="username">Nombre de usuario.</param>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve una lista que contiene la información de las áreas asociadas a un usuario.</returns>
+        private List<AreaData> GetUserAreas(string query, string username = "", int? userId = null)
+        {
+            List<AreaData> userAreas = new List<AreaData>();
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand
+                {
+                    Connection = Connection,
+                    CommandType = CommandType.Text,
+                    CommandText = query
+                };
+                if (!string.IsNullOrEmpty(username))
+                {
+                    sqlcmd.Parameters.AddWithValue("@username", username);
+                }
+
+                if (userId.HasValue && userId.Value > 0)
+                {
+                    sqlcmd.Parameters.AddWithValue("@userId", userId);
+                }
+
+                var reader = sqlcmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    AreaData singleArea = new AreaData
+                    {
+                        AreaId = reader["cve_Area"] != DBNull.Value ? Convert.ToInt32(reader["cve_Area"]) : 0,
+                        NameArea = reader["nameArea"] != DBNull.Value ? reader["nameArea"].ToString() : string.Empty,
+                        DefaultArea = reader["defaultArea"] != DBNull.Value ? Convert.ToBoolean(reader["defaultArea"]) : false
+                    };
+                    userAreas.Add(singleArea);
+                }
+
+                reader.Close();
+                Close();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return userAreas;
         }
     }
 }

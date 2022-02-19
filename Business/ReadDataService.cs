@@ -180,7 +180,7 @@
                 userInformation = connection.UserLogin(username);
                 if (userInformation != null)
                 {
-                    userInformation.Areas = connection.UserAreas(userInformation.Username);
+                    userInformation.Areas = AreasService.UserAreas(userInformation.Username);
                     if (userInformation.Areas != null && userInformation.Areas.Count > 0)
                     {
                         bool allAreasFlag = userInformation.Areas.Any(x => x.AreaId == 0);
@@ -275,7 +275,7 @@
                 userInformation = connection.GetUserById(userId);
                 if (userInformation != null)
                 {
-                    userInformation.Areas = connection.UserAreas(userInformation.Username);
+                    userInformation.Areas = AreasService.UserAreas(userInformation.Username);
                     if (userInformation.Areas != null && userInformation.Areas.Count > 0)
                     {
                         var allAreasData = userInformation.Areas.Where(x => x.AreaId == 0).FirstOrDefault();

@@ -7,6 +7,9 @@
     using Data.Models;
     using Data.Repositories;
 
+    /// <summary>
+    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a la promotoria.
+    /// </summary>
     public static class PromotoriaService
     {
         /// <summary>

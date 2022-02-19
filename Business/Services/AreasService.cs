@@ -8,8 +8,34 @@
     using Data.Models.Response;
     using Data.Repositories;
 
+    /// <summary>
+    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada al catálogo de áreas.
+    /// </summary>
     public class AreasService
     {
+        /// <summary>
+        /// Método utilizado para obtener las áreas asociadas a un usuario.
+        /// </summary>
+        /// <param name="username">Nombre de usuario.</param>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve la lista de áreas asociadas a un usuario/colaborador.</returns>
+        public static List<AreaData> UserAreas(string username = "", int? userId = null)
+        {
+            List<AreaData> userAreas = null;
+            try
+            {
+                AreasDAO areasDao = new AreasDAO();
+                userAreas = areasDao.UserAreas(username, userId);
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("UserAreas()." + "Error: " + ex.Message);
+            }
+
+            return userAreas;
+        }
+
         /// <summary>
         /// Método utilizado para recuperar todo el catálogo de áreas.
         /// </summary>
