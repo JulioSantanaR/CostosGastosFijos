@@ -11,6 +11,7 @@
     bool includeArea = ViewBag.includeArea != null ? (bool)ViewBag.includeArea : false;
     bool includeChargeTypeName = ViewBag.includeChargeTypeName != null ? (bool)ViewBag.includeChargeTypeName : true;
     bool allowManualBudget = ViewBag.manualBudget != null ? (bool)ViewBag.manualBudget : false;
+    bool includeFileType = ViewBag.includeFileType != null ? (bool)ViewBag.includeFileType : false;
 }
 
 <div id="@string.Format("{0}Tab", fileSection)" class="container tab-pane active">
@@ -38,6 +39,7 @@
             </div>
         }
 
+        @* Catálogo de áreas *@
         @if (userInformation != null && userInformation.Areas != null && userInformation.Areas.Count > 0)
         {
             <div class="col-auto">
@@ -53,6 +55,26 @@
 
                 </select>
             </div>
+        }
+
+        @* Catálogo tipos de archivos. *@
+        @if (includeFileType)
+        {
+            if (homeView.FileTypeCatalog != null && homeView.FileTypeCatalog.Count > 0)
+            {
+                <div class="col-auto">
+                    <label for="colFormLabel" class="col-form-label fw-bold">Tipo de archivo</label>
+                </div>
+                <div class="col-auto">
+                    <select class="form-select" id="fileTypeData">
+                        @for (int i = 0; i < homeView.FileTypeCatalog.Count; i++)
+                        {
+                            var singleFileType = homeView.FileTypeCatalog[i];
+                            <option value="@singleFileType.FileTypeId">@singleFileType.FileTypeName</option>
+                        }
+                    </select>
+                </div>
+            }
         }
 
         @if (allowManualBudget)

@@ -44,7 +44,7 @@ function UsersBuildTable() {
 
     var table = BuildGenericDataTable(dataTableProperties);
     table.on('responsive-display', function (e, datatable, row, showHide, update) {
-        UsersInitTableFn();
+        usersInitCallBack();
     });
 }
 

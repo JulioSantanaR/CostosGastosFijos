@@ -49,15 +49,13 @@ else
                         type: 'POST',
                         url: "/FileLog/ShowFileLogView",
                         beforeSend: function () {
-                            $('body').loadingModal({
-                                text: 'Cargando...'
-                            });
+                            ShowLoader();
                             $('#logFiles').html("");
                         },
                         success: function (response) {
                             $('#logFiles').html(response);
                             PopulateYears(null, true);
-                            $('body').loadingModal('hide');
+                            HideLoader();
                         }
                     });
                 } else {
@@ -92,6 +90,7 @@ else
             $('#accountsFile').fileinput('clear');
             $('#volumenFile').fileinput('clear');
             $('#promotoriaFile').fileinput('clear');
+            $('#percentagesFile').fileinput('clear');
         }
 
         /**
@@ -288,20 +287,6 @@ else
             $('html, body').animate({
                 scrollTop: $(eleId).offset().top
             }, 500);
-        }
-
-        /**
-         * Función utilizada para descargar el archivo que contiene la proyección de cada portafolio.
-         * @@param button Botón que ejecuta la acción.
-         */
-        function DownloadProjection(button) {
-            var fileName = "Proyeccion.xlsx",
-                uri = "/JDVSC/DownloadFileProjection",
-                contenType = "application/vnd.ms-excel";
-            BtnLoading(button, "Generando...");
-            $.when(DownloadFile(fileName, uri, contenType)).done(function () {
-                BtnReset(button);
-            });
         }
 
         /**

@@ -1,38 +1,100 @@
-﻿namespace Business
+﻿namespace Business.Services
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Business.Services;
-    using Data;
+    using Data.DAO;
     using Data.Models;
     using Data.Repositories;
 
     /// <summary>
-    /// Clase que contiene los métodos utilizados para actualizar información dentro de la Base de Datos.
+    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a la relación usuario-áreas.
     /// </summary>
-    public static class UpdateDataService
+    public static class UserAreasService
     {
         /// <summary>
-        /// Método utilizado para actualizar la información asociada a un usuario de la aplicación.
+        /// Método utilizado para obtener las áreas asociadas a un usuario.
         /// </summary>
-        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
-        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
-        public static bool UpdateUserInformation(UserData userInformation)
+        /// <param name="username">Nombre de usuario.</param>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve la lista de áreas asociadas a un usuario/colaborador.</returns>
+        public static List<AreaData> UserAreas(string username = "", int? userId = null)
         {
-            bool successUpdate = false;
+            List<AreaData> userAreas = null;
             try
             {
-                UpdateDataDAO connection = new UpdateDataDAO();
-                successUpdate = connection.UpdateUserInformation(userInformation);
+                UserAreasDAO userAreasDao = new UserAreasDAO();
+                userAreas = userAreasDao.UserAreas(username, userId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UpdateUserInformation()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("UserAreas()." + "Error: " + ex.Message);
             }
 
-            return successUpdate;
+            return userAreas;
+        }
+
+        /// <summary>
+        /// Método utilizado para eliminar la relación entre un usuario y la(s) área(s) asociadas a este.
+        /// </summary>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <param name="areaId">Id asociado al área.</param>
+        /// <returns>Devuelve una bandera para determinar si la eliminación de la información fue correcta o no.</returns>
+        public static bool DeleteUserAreas(int? userId = null, int? areaId = null)
+        {
+            bool successDelete = false;
+            try
+            {
+                UserAreasDAO userAreasDao = new UserAreasDAO();
+                successDelete = userAreasDao.DeleteUserAreas(userId, areaId);
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("DeleteUserAreas()." + "Error: " + ex.Message);
+            }
+
+            return successDelete;
+        }
+
+        /// <summary>
+        /// Método utilizado para guardar la relación entre un usuario y la(s) área(s) asociadas a este.
+        /// </summary>
+        /// <param name="userAreas">Lista de áreas asociadas a un usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la información fue guardada correctamente.</returns>
+        public static bool BulkInsertUserAreas(List<int> areas, int userId)
+        {
+            bool successInsert = false;
+            try
+            {
+                List<UserAreaRelation> userAreas = new List<UserAreaRelation>();
+                if (areas != null && areas.Count > 0)
+                {
+                    for (int i = 0; i < areas.Count; i++)
+                    {
+                        UserAreaRelation singleUserArea = new UserAreaRelation
+                        {
+                            AreaId = areas[i],
+                            UserId = userId
+                        };
+                        userAreas.Add(singleUserArea);
+                    }
+                }
+
+                if (userAreas != null && userAreas.Count > 0)
+                {
+                    UserAreasDAO UserAreasDao = new UserAreasDAO();
+                    successInsert = UserAreasDao.BulkInsertUserAreas(userAreas);
+                }
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("BulkInsertUserAreas()." + "Error: " + ex.Message);
+            }
+
+            return successInsert;
         }
 
         /// <summary>
@@ -48,8 +110,7 @@
             {
                 List<int> areasToDelete = new List<int>();
                 List<int> areasToAdd = new List<int>();
-                ReadDataDAO readData = new ReadDataDAO();
-                var existingAreas = AreasService.UserAreas(null, userId);
+                var existingAreas = UserAreas(null, userId);
                 if (existingAreas != null && existingAreas.Count > 0)
                 {
                     bool allAreas = areas.Any(x => x == 0);
@@ -97,7 +158,7 @@
                     // Agregar las áreas nuevas.
                     if (areasToAdd != null && areasToAdd.Count > 0)
                     {
-                        successUpdate = SaveDataService.BulkInsertUserAreas(areasToAdd, userId);
+                        successUpdate = BulkInsertUserAreas(areasToAdd, userId);
                     }
                     else
                     {
@@ -106,7 +167,7 @@
                 }
                 else
                 {
-                    successUpdate = SaveDataService.BulkInsertUserAreas(areas, userId);
+                    successUpdate = BulkInsertUserAreas(areas, userId);
                 }
             }
             catch (Exception ex)
@@ -130,7 +191,7 @@
                 for (int i = 0; i < existingAreas.Count; i++)
                 {
                     var singleArea = existingAreas[i];
-                    AreasService.DeleteUserAreas(userId, singleArea);
+                    DeleteUserAreas(userId, singleArea);
                 }
             }
         }

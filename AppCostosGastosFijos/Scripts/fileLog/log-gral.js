@@ -60,7 +60,7 @@ function FilesBuildTable() {
 
     var table = BuildGenericDataTable(dataTableProperties);
     table.on('responsive-display', function (e, datatable, row, showHide, update) {
-        FilesInitTableFn();
+        filesInitCallBack();
     });
 }
 
@@ -155,6 +155,7 @@ function DeleteFileInformation(deleteFileRequest) {
         dangerMode: true,
     }).then((willDelete) => {
         if (willDelete) {
+            ShowLoader();
             $.ajax({
                 url: "/FileLog/DeleteFileLog",
                 type: "POST",
@@ -170,6 +171,9 @@ function DeleteFileInformation(deleteFileRequest) {
                             swal("", errorMsg, "error");
                         }
                     }
+                },
+                complete: function () {
+                    HideLoader();
                 }
             });
         }

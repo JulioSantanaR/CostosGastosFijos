@@ -7,6 +7,7 @@
     using System.Web.Mvc;
     using AppCostosGastosFijos.Models;
     using Business;
+    using Business.Services;
     using Data.Models;
     using Data.Models.Request;
     using Data.Models.Response;
@@ -25,7 +26,7 @@
             string userName = GetUserInformation(user);
             if (!string.IsNullOrEmpty(userName))
             {
-                userInformation = ReadDataService.UserLogin(userName);
+                userInformation = UsersService.UserLogin(userName);
             }
 
             ViewBag.homeView = homeView;
@@ -77,11 +78,11 @@
                                 AccountsResponse response = null;
                                 if (manualBudget)
                                 {
-                                    response = SaveDataService.ManualBudgetInformation(accountsData);
+                                    response = BudgetService.ManualBudgetInformation(accountsData);
                                 }
                                 else
                                 {
-                                    response = SaveDataService.AccountsInformation(accountsData);
+                                    response = BudgetService.AccountsInformation(accountsData);
                                 }
 
                                 if (response != null)
@@ -150,8 +151,7 @@
                                 ChargeTypeName = chargeTypeName,
                                 Collaborator = userInformation.CollaboratorId,
                             };
-
-                            successResponse = SaveDataService.VolumenInformation(volumeData);
+                            successResponse = VolumeService.VolumenInformation(volumeData);
                             if (!successResponse)
                             {
                                 break;
@@ -199,8 +199,7 @@
                                 ChargeTypeName = chargeTypeName,
                                 Collaborator = userInformation.CollaboratorId,
                             };
-
-                            UploadResponse response = SaveDataService.PromotoriaInformation(volumeData);
+                            UploadResponse response = PromotoriaService.PromotoriaInformation(volumeData);
                             if (response != null)
                             {
                                 successResponse = response.ResponseFlag;
@@ -218,6 +217,54 @@
             {
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("UploadPromotoria()." + "Error: " + ex.Message);
+            }
+
+            return Json(new { successResponse, message });
+        }
+
+        /// <summary>
+        /// Método utilizado para realizar el proceso que guarda los porcentajes base y los porcentajes por marca.
+        /// </summary>
+        /// <param name="yearData">Año de carga.</param>
+        /// <param name="chargeTypeData">Tipo de carga.</param>
+        /// <param name="chargeTypeName">Nombre asociado al tipo de carga.</param>
+        /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
+        [HttpPost]
+        public ActionResult UploadPercentages(int yearData, int chargeTypeData, string chargeTypeName)
+        {
+            bool successResponse = false;
+            string message = string.Empty;
+            try
+            {
+                UserData userInformation = GetUserData();
+                if (userInformation != null)
+                {
+                    foreach (string item in Request.Files)
+                    {
+                        HttpPostedFileBase file = Request.Files[item];
+                        if (file.ContentLength > 0)
+                        {
+                            BasePercentageRequest percentageData = new BasePercentageRequest()
+                            {
+                                FileData = file,
+                                YearData = yearData,
+                                ChargeType = chargeTypeData,
+                                ChargeTypeName = chargeTypeName,
+                                Collaborator = userInformation.CollaboratorId,
+                            };
+                            successResponse = StillsPercentageService.SaveBasePercentage(percentageData);
+                            if (!successResponse)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GeneralRepository generalRepository = new GeneralRepository();
+                generalRepository.WriteLog("UploadStillsPercentages()." + "Error: " + ex.Message);
             }
 
             return Json(new { successResponse, message });
@@ -257,49 +304,19 @@
             bool successResponse = false;
             try
             {
-                string jobName = "JDV_CGProyeccion";
-                string jobId = "D6C970BA-F946-43ED-859F-2254B470973E";
-                CubeService.UpdateCube(jobName, jobId);
-                successResponse = true;
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UpdateCubeProjection()." + "Error: " + ex.Message);
-            }
-
-            return Json(new { successResponse });
-        }
-
-        /// <summary>
-        /// Método utilizado para cargar el documento asociado a los porcentajes relacionados a cada canal de venta.
-        /// </summary>
-        /// <param name="yearPercentage">Año de carga.</param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult UploadPercentage(int yearPercentage)
-        {
-            bool successResponse = false;
-            try
-            {
-                foreach (string item in Request.Files)
+                successResponse = CubeService.UpdateProjectionTbl();
+                if (successResponse)
                 {
-                    HttpPostedFileBase file = Request.Files[item] as HttpPostedFileBase;
-                    if (file.ContentLength > 0)
-                    {
-                        string extension = Path.GetExtension(file.FileName);
-                        successResponse = SaveDataService.PercentagesInformation(file.InputStream, extension, yearPercentage);
-                        if (!successResponse)
-                        {
-                            break;
-                        }
-                    }
+                    string jobName = "JDV_CGProyeccion";
+                    string jobId = "D6C970BA-F946-43ED-859F-2254B470973E";
+                    CubeService.UpdateCube(jobName, jobId);
+                    successResponse = true;
                 }
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UploadPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("UpdateCubeProjection()." + "Error: " + ex.Message);
             }
 
             return Json(new { successResponse });
@@ -334,31 +351,6 @@
             {
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("DownloadFile()." + "Error: " + ex.Message);
-            }
-
-            return new JsonResult()
-            {
-                Data = fileResult,
-                MaxJsonLength = 500000000
-            };
-        }
-
-        /// <summary>
-        /// Método utilizado para descargar el archivo asociado a la proyección a UAFIR.
-        /// </summary>
-        /// <returns>Devuelve una cadena con la información del archivo en base64.</returns>
-        [HttpPost]
-        public ActionResult DownloadFileProjection()
-        {
-            string fileResult = string.Empty;
-            try
-            {
-                fileResult = ReadDataService.GenerateProjection();
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DownloadFileProjection()." + "Error: " + ex.Message);
             }
 
             return new JsonResult()
@@ -405,19 +397,10 @@
             string userName = GetUserInformation(user);
             if (!string.IsNullOrEmpty(userName))
             {
-                userInformation = ReadDataService.CollaboratorByUsername(userName);
+                userInformation = UsersService.CollaboratorByUsername(userName);
             }
 
             return userInformation;
-        }
-
-        /// <summary>
-        /// Método utilizado para mostrar la lista de usuarios dados de alta en la aplicación.
-        /// </summary>
-        /// <returns>Devuelve la vista con la información de los usuarios.</returns>
-        public ActionResult Users()
-        {
-            return View();
         }
     }
 }

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Business;
+    using Business.Services;
     using Data.Models;
     using Data.Repositories;
 
@@ -19,6 +20,7 @@
             try
             {
                 ChargeTypes = CatalogService.GetChargeTypes();
+                FileTypeCatalog = FileTypeService.GetFileTypes(true);
             }
             catch (Exception ex)
             {
@@ -31,5 +33,10 @@
         /// Lista de objetos que contiene los tipos de carga asociados a un ejercicio financiero.
         /// </summary>
         public List<ChargeType> ChargeTypes { get; set; }
+
+        /// <summary>
+        /// Lista de objetos que contiene el catálogo de tipos de archivos.
+        /// </summary>
+        public List<FileType> FileTypeCatalog { get; set; }
     }
 }

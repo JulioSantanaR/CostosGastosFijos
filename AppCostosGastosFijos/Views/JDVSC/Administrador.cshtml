@@ -23,6 +23,9 @@
             <a class="nav-link" data-toggle="tab" href="#volumen"><i class="fas fa-chart-bar" aria-hidden="true"></i> Volumen</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#percentages"><i class="fas fa-percent"></i> Porcentaje</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#logFiles"><i class="fas fa-history"></i> Historial cargas</a>
         </li>
     </ul>
@@ -45,6 +48,13 @@
         <!-- Volumen -->
         <div id="volumen" class="container tab-pane fade">
             @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "volumen" }, { "homeView", homeView } })
+
+            @Html.Partial("PartialButtons")
+        </div>
+
+        <!-- Porcetajes -->
+        <div id="percentages" class="container tab-pane fade">
+            @Html.Partial("FileCharge", null, new ViewDataDictionary { { "section", "percentages" }, { "homeView", homeView }, { "includeFileType", true } })
 
             @Html.Partial("PartialButtons")
         </div>

@@ -14,14 +14,15 @@
         /// <summary>
         /// Método utilizado para recuperar el catálogo asociado a los tipos de archivos.
         /// </summary>
+        /// <param name="percentageFile">Bandera para determinar si el archivo es del tipo porcentaje.</param>
         /// <returns>Devuelve la lista de tipos de archivos dados de alta en la aplicación.</returns>
-        public static List<FileType> GetFileTypes()
+        public static List<FileType> GetFileTypes(bool? percentageFile = null)
         {
             List<FileType> fileTypeCatalog = null;
             try
             {
                 FileTypeDAO fileTypeDao = new FileTypeDAO();
-                fileTypeCatalog = fileTypeDao.GetFileTypes();
+                fileTypeCatalog = fileTypeDao.GetFileTypes(percentageFile);
             }
             catch (Exception ex)
             {

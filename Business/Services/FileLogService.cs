@@ -1,11 +1,6 @@
 ﻿namespace Business.Services
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Data;
     using Data.DAO;
     using Data.Models;
     using Data.Models.Request;
@@ -76,6 +71,27 @@
                         case "Promotoria":
                             successDelete = PromotoriaService.DeletePromotoria(null, null, logFileId);
                             break;
+
+                        case "Porcentajes Stills":
+                            successDelete = MixBrandPercentageService.DeleteBrandMixPercentage(null, null, logFileId);
+                            if (successDelete)
+                            {
+                                successDelete = StillsPercentageService.DeleteBasePercentage(null, null, logFileId);
+                                if (successDelete)
+                                {
+                                    successDelete = StillsPercentageService.DeleteBottlerPercentage(null, null, logFileId);
+                                    if (successDelete)
+                                    {
+                                        successDelete = StillsPercentageService.DeleteManualPercentageChannel(null, null, logFileId);
+                                        if (successDelete)
+                                        {
+                                            successDelete = StillsPercentageService.DeleteBasePercentageChannel(null, null, logFileId);
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
                     }
 
                     // Eliminar la información general del archivo en el historial.
@@ -89,9 +105,7 @@
                             string chargeTypeName = deleteFileRequest.ChargeTypeName.ToLower();
                             bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
                             string exerciseType = bpExercise ? "BP" : "Rolling";
-
-                            UpdateDataDAO updateData = new UpdateDataDAO();
-                            updateData.UpdateFactProjection(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData, exerciseType);
+                            LogProjectionService.SaveOrUpdateLogProjection(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData, exerciseType);
                         }
                     }
                 }

@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\julio.santana\Desktop\CGFijos</_PublishTargetUrl>
-    <History>True|2022-02-14T22:53:58.5663797Z;True|2022-01-20T09:32:02.5760763-06:00;True|2022-01-14T04:13:32.8550902-06:00;True|2021-12-31T09:28:27.5789307-06:00;True|2021-12-31T09:27:55.8823655-06:00;True|2021-12-31T09:27:17.7831417-06:00;True|2021-12-28T03:59:15.8760027-06:00;True|2021-12-28T03:45:11.4088172-06:00;True|2021-09-28T14:55:43.5262576-05:00;True|2021-09-27T13:42:57.7543493-05:00;</History>
+    <History>True|2022-03-03T17:08:08.1909414Z;True|2022-03-03T03:43:25.6510954-06:00;True|2022-03-03T02:48:05.9137731-06:00;True|2022-03-02T05:04:48.8426120-06:00;True|2022-02-14T16:53:58.5663797-06:00;True|2022-01-20T09:32:02.5760763-06:00;True|2022-01-14T04:13:32.8550902-06:00;True|2021-12-31T09:28:27.5789307-06:00;True|2021-12-31T09:27:55.8823655-06:00;True|2021-12-31T09:27:17.7831417-06:00;True|2021-12-28T03:59:15.8760027-06:00;True|2021-12-28T03:45:11.4088172-06:00;True|2021-09-28T14:55:43.5262576-05:00;True|2021-09-27T13:42:57.7543493-05:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -15,16 +15,16 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>10/09/2013 16:29:20</publishTime>
     </File>
     <File Include="bin/AppCostosGastosFijos.dll">
-      <publishTime>02/16/2022 02:02:30</publishTime>
+      <publishTime>03/03/2022 11:08:04</publishTime>
     </File>
     <File Include="bin/AppCostosGastosFijos.pdb">
-      <publishTime>02/16/2022 02:02:30</publishTime>
+      <publishTime>03/03/2022 11:08:04</publishTime>
     </File>
     <File Include="bin/Business.dll">
-      <publishTime>02/16/2022 01:53:21</publishTime>
+      <publishTime>03/03/2022 11:08:03</publishTime>
     </File>
     <File Include="bin/Business.pdb">
-      <publishTime>02/16/2022 01:53:21</publishTime>
+      <publishTime>03/03/2022 11:08:03</publishTime>
     </File>
     <File Include="bin/ClosedXML.dll">
       <publishTime>12/16/2020 03:59:08</publishTime>
@@ -33,10 +33,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>12/16/2020 03:59:08</publishTime>
     </File>
     <File Include="bin/Data.dll">
-      <publishTime>02/16/2022 01:53:20</publishTime>
+      <publishTime>03/03/2022 02:47:54</publishTime>
     </File>
     <File Include="bin/Data.pdb">
-      <publishTime>02/16/2022 01:53:20</publishTime>
+      <publishTime>03/03/2022 02:47:54</publishTime>
     </File>
     <File Include="bin/DocumentFormat.OpenXml.dll">
       <publishTime>06/06/2017 17:59:22</publishTime>
@@ -284,6 +284,15 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="Content/css/bootstrap/bootstrap.min.css.map">
       <publishTime>01/02/2022 11:48:24</publishTime>
     </File>
+    <File Include="Content/css/bootstrap/font/bootstrap-icons.min.css">
+      <publishTime>02/18/2022 22:26:33</publishTime>
+    </File>
+    <File Include="Content/css/bootstrap/font/fonts/bootstrap-icons.woff">
+      <publishTime>02/19/2022 00:26:59</publishTime>
+    </File>
+    <File Include="Content/css/bootstrap/font/fonts/bootstrap-icons.woff2">
+      <publishTime>02/19/2022 00:26:59</publishTime>
+    </File>
     <File Include="Content/css/CostosGastos.css">
       <publishTime>02/11/2022 14:41:25</publishTime>
     </File>
@@ -393,7 +402,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>02/16/2022 01:51:29</publishTime>
     </File>
     <File Include="Scripts/areas/areas-gral.js">
-      <publishTime>02/02/2022 13:30:01</publishTime>
+      <publishTime>02/21/2022 02:29:50</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
       <publishTime>09/01/2021 18:33:57</publishTime>
@@ -429,7 +438,19 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>02/16/2022 01:51:05</publishTime>
     </File>
     <File Include="Scripts/fileLog/log-gral.js">
-      <publishTime>02/16/2022 01:47:19</publishTime>
+      <publishTime>02/21/2022 02:40:19</publishTime>
+    </File>
+    <File Include="Scripts/general/common.js">
+      <publishTime>02/21/2022 02:36:18</publishTime>
+    </File>
+    <File Include="Scripts/general/jquery.validate.min.js">
+      <publishTime>02/18/2022 22:23:02</publishTime>
+    </File>
+    <File Include="Scripts/general/navbarMenu.js">
+      <publishTime>01/02/2022 02:40:19</publishTime>
+    </File>
+    <File Include="Scripts/general/sweetalert.min.js">
+      <publishTime>01/31/2022 14:24:50</publishTime>
     </File>
     <File Include="Scripts/jquery-3.4.1.js">
       <publishTime>09/01/2021 18:33:58</publishTime>
@@ -477,16 +498,16 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>02/16/2022 01:51:10</publishTime>
     </File>
     <File Include="Scripts/users/users-gral.js">
-      <publishTime>02/14/2022 22:55:50</publishTime>
+      <publishTime>02/21/2022 02:30:13</publishTime>
     </File>
     <File Include="Views/Areas/AddEditArea.cshtml">
       <publishTime>02/02/2022 12:18:27</publishTime>
     </File>
     <File Include="Views/Areas/Index.cshtml">
-      <publishTime>02/11/2022 13:12:17</publishTime>
+      <publishTime>02/21/2022 02:22:50</publishTime>
     </File>
     <File Include="Views/FileLog/Index.cshtml">
-      <publishTime>02/16/2022 00:00:52</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Views/Home/About.cshtml">
       <publishTime>01/09/2021 18:33:50</publishTime>
@@ -498,19 +519,19 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/09/2021 18:33:50</publishTime>
     </File>
     <File Include="Views/JDVSC/Administrador.cshtml">
-      <publishTime>02/11/2022 03:03:57</publishTime>
+      <publishTime>01/03/2022 16:51:40</publishTime>
     </File>
     <File Include="Views/JDVSC/Colaborador.cshtml">
       <publishTime>02/15/2022 23:53:06</publishTime>
     </File>
     <File Include="Views/JDVSC/FileCharge.cshtml">
-      <publishTime>02/12/2022 00:40:33</publishTime>
+      <publishTime>01/03/2022 13:22:23</publishTime>
     </File>
     <File Include="Views/JDVSC/FileChargeV2.cshtml">
       <publishTime>12/28/2021 02:53:07</publishTime>
     </File>
     <File Include="Views/JDVSC/Index.cshtml">
-      <publishTime>02/15/2022 23:54:14</publishTime>
+      <publishTime>01/03/2022 15:01:01</publishTime>
     </File>
     <File Include="Views/JDVSC/OriginalIndex.cshtml">
       <publishTime>12/17/2021 03:35:09</publishTime>
@@ -519,22 +540,22 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>01/04/2022 11:12:37</publishTime>
     </File>
     <File Include="Views/Shared/AdminMenu.cshtml">
-      <publishTime>02/02/2022 11:50:53</publishTime>
+      <publishTime>02/18/2022 22:38:53</publishTime>
     </File>
     <File Include="Views/Shared/CollaboratorMenu.cshtml">
-      <publishTime>02/02/2022 00:01:03</publishTime>
+      <publishTime>02/18/2022 22:38:56</publishTime>
     </File>
     <File Include="Views/Shared/Error.cshtml">
       <publishTime>01/09/2021 18:33:50</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>02/14/2022 18:21:41</publishTime>
+      <publishTime>02/21/2022 02:28:17</publishTime>
     </File>
     <File Include="Views/Users/AddEditUser.cshtml">
       <publishTime>02/03/2022 00:59:09</publishTime>
     </File>
     <File Include="Views/Users/Index.cshtml">
-      <publishTime>02/11/2022 13:02:21</publishTime>
+      <publishTime>02/21/2022 02:23:08</publishTime>
     </File>
     <File Include="Views/Web.config">
       <publishTime>01/09/2021 18:33:50</publishTime>
@@ -543,7 +564,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>02/11/2022 18:17:55</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/14/2022 16:53:53</publishTime>
+      <publishTime>03/03/2022 03:43:24</publishTime>
     </File>
   </ItemGroup>
 </Project>

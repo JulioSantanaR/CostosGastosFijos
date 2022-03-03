@@ -117,5 +117,22 @@
             };
             return fileType;
         }
+
+        /// <summary>
+        /// Método utilizado para mapear la información relacionada con el log referente a la tabla de hechos de la proyección.
+        /// </summary>
+        /// <param name="reader">Información obtenida desde la Base de datos.</param>
+        /// <returns>Devuelve la información asociada al log de la tabla de hechos de la proyección.</returns>
+        public static LogProjectionData MapLogProjection(SqlDataReader reader)
+        {
+            LogProjectionData singleProjection = new LogProjectionData();
+            singleProjection.LogFactProjectionId = reader["cve_LogFactProyeccion"] != DBNull.Value ? Convert.ToInt32(reader["cve_LogFactProyeccion"]) : 0;
+            singleProjection.ChargeType = reader["tipoCarga"] != DBNull.Value ? reader["tipoCarga"].ToString() : string.Empty;
+            singleProjection.ChargeTypeId = reader["cve_TipoCarga"] != DBNull.Value ? Convert.ToInt32(reader["cve_TipoCarga"]) : 0;
+            singleProjection.YearData = reader["anio"] != DBNull.Value ? Convert.ToInt32(reader["anio"]) : 0;
+            singleProjection.ProjectionStatus = reader["estatus"] != DBNull.Value ? Convert.ToBoolean(reader["estatus"]) : false;
+            singleProjection.DateActualization = reader["fechaActualizacion"] != DBNull.Value ? Convert.ToDateTime(reader["fechaActualizacion"]) : DateTime.MinValue;
+            return singleProjection;
+        }
     }
 }

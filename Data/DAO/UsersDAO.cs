@@ -1,4 +1,4 @@
-﻿namespace Data
+﻿namespace Data.DAO
 {
     using System;
     using System.Collections.Generic;
@@ -7,15 +7,15 @@
     using System.Data.SqlClient;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using Data.Models;
     using Data.Models.Request;
     using Data.Models.Response;
-    using Data.Repositories;
 
     /// <summary>
-    /// Clase utilizada para leer información desde la Base de Datos.
+    /// Clase asociada al acceso a datos para manipular la información asociada a los usuarios.
     /// </summary>
-    public class ReadDataDAO : CommonDAO
+    public class UsersDAO : CommonDAO
     {
         /// <summary>
         /// Cadena de conexión asociada a la Base de Datos de Costos y Gastos fijos.
@@ -27,12 +27,10 @@
         /// </summary>
         private readonly string[] CollaboratorFields = new string[] { "cve_Colaborador", "nombre", "correo", "usuario", "cve_RolUsuario" };
 
-        private readonly string[] UserRoleFields = new string[] { "cve_RolUsuario", "rolUsuario", "defaultRole" };
-
         /// <summary>
         /// Constructor default de la clase.
         /// </summary>
-        public ReadDataDAO()
+        public UsersDAO()
         {
             ConnectionString = connectionString;
         }
@@ -104,160 +102,28 @@
         }
 
         /// <summary>
-        /// Método utilizado para recuperar las cuentas/cecos que no tengan la información completa en el BIF.
+        /// Método utilizado para recuperar la información de un usuario de acuerdo al id asociado a este.
         /// </summary>
-        /// <param name="accountsData">Objeto auxiliar en la búsqueda de cuentas/cecos con información incompleta en el BIF.</param>
-        /// <returns>Devuelve la lista de cuentas dentro del presupuesto cargado que no están completas en el BIF.</returns>
-        public List<Accounts> GetNotFoundAccountsBIF(AccountsDataRequest accountsData)
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve la información general del usuario.</returns>
+        public UserData GetUserById(int userId)
         {
-            List<Accounts> notFoundAccounts = new List<Accounts>();
+            UserData userInformation = null;
             try
             {
-                if (accountsData != null)
-                {
-                    Open();
-                    SqlCommand sqlcmd = new SqlCommand("usp_CuentasIncompletasBIF", Connection);
-                    sqlcmd.CommandType = CommandType.StoredProcedure;
-                    sqlcmd.Parameters.AddWithValue("@anio", accountsData.YearAccounts);
-                    sqlcmd.Parameters.AddWithValue("@tipo_carga", accountsData.ChargeTypeAccounts);
-                    sqlcmd.Parameters.AddWithValue("@colaborador", accountsData.Collaborator);
-                    sqlcmd.Parameters.AddWithValue("@area", accountsData.Area);
-                    sqlcmd.CommandTimeout = 3600;
-                    var reader = sqlcmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Accounts singleAccount = new Accounts();
-                        singleAccount.Account = reader["cuenta"] != DBNull.Value ? reader["cuenta"].ToString() : string.Empty;
-                        singleAccount.CostCenter = reader["centroDeCosto"] != DBNull.Value ? reader["centroDeCosto"].ToString() : string.Empty;
-                        notFoundAccounts.Add(singleAccount);
-                    }
-
-                    reader.Close();
-                    Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("GetNotFoundAccountsBIF()." + "Error: " + ex.Message);
-            }
-
-            return notFoundAccounts;
-        }
-
-        public List<AccountArea> ReviewAccounts(List<string> accounts, List<int> areas)
-        {
-            List<AccountArea> reviewAccount = new List<AccountArea>();
-            try
-            {
-                Open();
                 StringBuilder query = new StringBuilder();
-                query.Append("SELECT * FROM [dbo].[Cat_CuentasAreas] ");
-                query.Append("WHERE 1 = 1 ");
-                SqlCommand sqlcmd = new SqlCommand();
-                if (accounts != null && accounts.Count > 0)
-                {
-                    string accountParameters = BuildParameters("@account", accounts.Cast<dynamic>().ToList(), sqlcmd);
-                    query.Append("AND cuenta IN (").Append(accountParameters).Append(") ");
-                }
-
-                if (areas != null && areas.Count > 0)
-                {
-                    string areaParameters = BuildParameters("@area", areas.Cast<dynamic>().ToList(), sqlcmd);
-                    query.Append("AND cve_Area IN (").Append(areaParameters).Append(") ");
-                }
-
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                var reader = sqlcmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    AccountArea singleAccountArea = new AccountArea();
-                    singleAccountArea.Account = reader["cuenta"] != DBNull.Value ? reader["cuenta"].ToString() : string.Empty;
-                    singleAccountArea.AreaId = reader["cve_Area"] != DBNull.Value ? Convert.ToInt32(reader["cve_Area"]) : 0;
-                    reviewAccount.Add(singleAccountArea);
-                }
-
-                reader.Close();
-                Close();
+                query.Append("SELECT colab.*, roles.rolUsuario ");
+                query.Append(" FROM [dbo].[Cat_Colaboradores] colab ");
+                query.Append(" INNER JOIN [dbo].[Cat_RolesDeUsuario] roles ON roles.cve_RolUsuario = colab.cve_RolUsuario ");
+                query.Append(" WHERE cve_Colaborador = @userId");
+                userInformation = GetUserData(query.ToString(), null, userId);
             }
             catch (Exception ex)
             {
                 throw;
             }
 
-            return reviewAccount;
-        }
-
-        public DataTable AdesProjection()
-        {
-            DataTable adesData = new DataTable();
-            try
-            {
-                Open();
-                SqlConnection connectionData = GetConnection();
-                using (var sqlcmd = new SqlCommand("usp_InsertarProyeccionAdes", Connection))
-                using (var adapter = new SqlDataAdapter(sqlcmd))
-                {
-                    sqlcmd.CommandTimeout = 3600;
-                    sqlcmd.CommandType = CommandType.StoredProcedure;
-                    adapter.Fill(adesData);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return adesData;
-        }
-
-        public DataTable StillsProjection(string channel)
-        {
-            DataTable stillsData = new DataTable();
-            try
-            {
-                Open();
-                SqlConnection connectionData = GetConnection();
-                using (var sqlcmd = new SqlCommand("usp_InsertarProyeccionStills", Connection))
-                using (var adapter = new SqlDataAdapter(sqlcmd))
-                {
-                    sqlcmd.CommandTimeout = 3600;
-                    sqlcmd.Parameters.AddWithValue("@canal", channel);
-                    sqlcmd.CommandType = CommandType.StoredProcedure;
-                    adapter.Fill(stillsData);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return stillsData;
-        }
-
-        public DataTable LacteosProjection()
-        {
-            DataTable lacteosData = new DataTable();
-            try
-            {
-                Open();
-                SqlConnection connectionData = GetConnection();
-                using (var sqlcmd = new SqlCommand("usp_InsertarProyeccionLacteos", Connection))
-                using (var adapter = new SqlDataAdapter(sqlcmd))
-                {
-                    sqlcmd.CommandTimeout = 3600;
-                    sqlcmd.CommandType = CommandType.StoredProcedure;
-                    adapter.Fill(lacteosData);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
-            return lacteosData;
+            return userInformation;
         }
 
         /// <summary>
@@ -289,7 +155,7 @@
                         {
                             sqlcmdList.Parameters.AddWithValue("@searchValue", dataTableInfo.SearchValue);
                         }
-                        
+
                         var reader = sqlcmdList.ExecuteReader();
                         while (reader.Read())
                         {
@@ -393,31 +259,25 @@
         }
 
         /// <summary>
-        /// Método utilizado para recuperar el catálogo de roles de usuario.
+        /// Método utilizado para guardar la información asociada a un usuario de la aplicación.
         /// </summary>
-        /// <returns>Devuelve el catálogo de roles de usuario disponibles.</returns>
-        public List<UserRole> GetUserRoles()
+        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
+        /// <returns>Devuelve el id asociado al usuario recién insertado en la Base de Datos.</returns>
+        public int SaveUserInformation(UserData userInformation)
         {
-            List<UserRole> userRoles = new List<UserRole>();
+            int collaboratorId = 0;
             try
             {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT ").Append(string.Join(",", UserRoleFields));
-                query.Append(" FROM [dbo].[Cat_RolesDeUsuario] ");
-                query.Append(" ORDER BY rolUsuario ASC ");
                 Open();
                 SqlCommand sqlcmd = new SqlCommand();
                 sqlcmd.Connection = Connection;
                 sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                var reader = sqlcmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    UserRole singleRole = Mapping.MapRole(reader);
-                    userRoles.Add(singleRole);
-                }
-
-                reader.Close();
+                sqlcmd.CommandText = "INSERT INTO [dbo].[Cat_Colaboradores] VALUES (@name, @email, @username, @roleId); SELECT SCOPE_IDENTITY();";
+                sqlcmd.Parameters.AddWithValue("@name", userInformation.CollaboratorName);
+                sqlcmd.Parameters.AddWithValue("@email", userInformation.Email);
+                sqlcmd.Parameters.AddWithValue("@username", userInformation.Username);
+                sqlcmd.Parameters.AddWithValue("@roleId", userInformation.RoleId);
+                collaboratorId = Convert.ToInt32(sqlcmd.ExecuteScalar());
                 Close();
             }
             catch (Exception ex)
@@ -425,32 +285,67 @@
                 throw;
             }
 
-            return userRoles;
+            return collaboratorId;
         }
 
         /// <summary>
-        /// Método utilizado para recuperar la información de un usuario de acuerdo al id asociado a este.
+        /// Método utilizado para actualizar la información asociada a un usuario de la aplicación.
         /// </summary>
-        /// <param name="userId">Id asociado al usuario.</param>
-        /// <returns>Devuelve la información general del usuario.</returns>
-        public UserData GetUserById(int userId)
+        /// <param name="userInformation">Objeto que contiene la información general del usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta.</returns>
+        public bool UpdateUserInformation(UserData userInformation)
         {
-            UserData userInformation = null;
+            bool successUpdate = false;
             try
             {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT colab.*, roles.rolUsuario ");
-                query.Append(" FROM [dbo].[Cat_Colaboradores] colab ");
-                query.Append(" INNER JOIN [dbo].[Cat_RolesDeUsuario] roles ON roles.cve_RolUsuario = colab.cve_RolUsuario ");
-                query.Append(" WHERE cve_Colaborador = @userId");
-                userInformation = GetUserData(query.ToString(), null, userId);
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "UPDATE [dbo].[Cat_Colaboradores] SET nombre = @name, correo = @email, usuario = @username, cve_RolUsuario = @role WHERE cve_Colaborador = @userId ";
+                sqlcmd.Parameters.AddWithValue("@name", userInformation.CollaboratorName);
+                sqlcmd.Parameters.AddWithValue("@email", userInformation.Email);
+                sqlcmd.Parameters.AddWithValue("@username", userInformation.Username);
+                sqlcmd.Parameters.AddWithValue("@role", userInformation.RoleId);
+                sqlcmd.Parameters.AddWithValue("@userId", userInformation.CollaboratorId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successUpdate = true;
             }
             catch (Exception ex)
             {
                 throw;
             }
 
-            return userInformation;
+            return successUpdate;
+        }
+
+        /// <summary>
+        /// Método utilizado para eliminar la información general asociada a un usuario.
+        /// </summary>
+        /// <param name="userId">Id asociado al usuario.</param>
+        /// <returns>Devuelve una bandera para determinar si la información se eliminó correctamente.</returns>
+        public bool DeleteUserInformation(int userId)
+        {
+            bool successDelete = false;
+            try
+            {
+                Open();
+                SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = "DELETE [dbo].[Cat_Colaboradores] WHERE cve_Colaborador = @collaboratorId ";
+                sqlcmd.Parameters.AddWithValue("@collaboratorId", userId);
+                sqlcmd.ExecuteNonQuery();
+                Close();
+                successDelete = true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            return successDelete;
         }
 
         /// <summary>
@@ -473,12 +368,12 @@
                 {
                     sqlcmd.Parameters.AddWithValue("@username", username);
                 }
-                
+
                 if (userId.HasValue && userId.Value > 0)
                 {
                     sqlcmd.Parameters.AddWithValue("@userId", userId);
                 }
-                
+
                 var reader = sqlcmd.ExecuteReader();
                 var userRoleExists = HasColumn(reader, "rolUsuario");
                 while (reader.Read())
@@ -495,29 +390,6 @@
             }
 
             return userInformation;
-        }
-
-        /// <summary>
-        /// Método utilizado para construir los parámetros que se colocarán en una consulta (query).
-        /// </summary>
-        /// <param name="parameterName">Nombre del parámetro.</param>
-        /// <param name="listData">Lista de datos.</param>
-        /// <param name="sqlcmd">Objeto asociado a la consulta SQL.</param>
-        /// <returns>Devuelve una cadena que contiene la información de los parámetros.</returns>
-        private string BuildParameters(string parameterName, List<dynamic> listData, SqlCommand sqlcmd)
-        {
-            var parameters = new List<string>();
-            var counter = 0;
-            foreach (var singleData in listData)
-            {
-                var paramName = parameterName + counter;
-                sqlcmd.Parameters.AddWithValue(paramName, singleData);
-                parameters.Add(paramName);
-                counter++;
-            }
-
-            string parameterResult = string.Join(",", parameters);
-            return parameterResult;
         }
     }
 }

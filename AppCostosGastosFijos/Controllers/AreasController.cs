@@ -119,7 +119,7 @@
             try
             {
                 // Eliminar el área de la relación entre usuario/área.
-                successResponse = AreasService.DeleteUserAreas(null, areaId);
+                successResponse = UserAreasService.DeleteUserAreas(null, areaId);
                 if (successResponse)
                 {
                     // Eliminar la información general del área.

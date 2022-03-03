@@ -14,29 +14,6 @@
     public class AreasService
     {
         /// <summary>
-        /// Método utilizado para obtener las áreas asociadas a un usuario.
-        /// </summary>
-        /// <param name="username">Nombre de usuario.</param>
-        /// <param name="userId">Id asociado al usuario.</param>
-        /// <returns>Devuelve la lista de áreas asociadas a un usuario/colaborador.</returns>
-        public static List<AreaData> UserAreas(string username = "", int? userId = null)
-        {
-            List<AreaData> userAreas = null;
-            try
-            {
-                AreasDAO areasDao = new AreasDAO();
-                userAreas = areasDao.UserAreas(username, userId);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UserAreas()." + "Error: " + ex.Message);
-            }
-
-            return userAreas;
-        }
-
-        /// <summary>
         /// Método utilizado para recuperar todo el catálogo de áreas.
         /// </summary>
         /// <param name="includeAllAreas">Bandera para saber si incluir "Todas las áreas" en la consulta.</param>
@@ -163,29 +140,6 @@
             {
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("DeleteAreaInformation()." + "Error: " + ex.Message);
-            }
-
-            return successDelete;
-        }
-
-        /// <summary>
-        /// Método utilizado para eliminar la relación entre un usuario y la(s) área(s) asociadas a este.
-        /// </summary>
-        /// <param name="userId">Id asociado al usuario.</param>
-        /// <param name="areaId">Id asociado al área.</param>
-        /// <returns>Devuelve una bandera para determinar si la eliminación de la información fue correcta o no.</returns>
-        public static bool DeleteUserAreas(int? userId = null, int? areaId = null)
-        {
-            bool successDelete = false;
-            try
-            {
-                AreasDAO areasDao = new AreasDAO();
-                successDelete = areasDao.DeleteUserAreas(userId, areaId);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteUserAreas()." + "Error: " + ex.Message);
             }
 
             return successDelete;

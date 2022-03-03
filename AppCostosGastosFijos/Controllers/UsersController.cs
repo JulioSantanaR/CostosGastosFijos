@@ -37,7 +37,7 @@
             int usersCount = 0;
             try
             {
-                UsersTableResponse usersData = ReadDataService.GetUsersTable(dataTableInfo);
+                UsersTableResponse usersData = UsersService.GetUsersTable(dataTableInfo);
                 if (usersData != null)
                 {
                     if (usersData.UsersList != null && usersData.UsersList.Count > 0)
@@ -66,11 +66,11 @@
         {
             try
             {
-                List<UserRole> userRoles = ReadDataService.GetUserRoles();
+                List<UserRole> userRoles = UserRolesService.GetUserRoles();
                 List<AreaData> areas = AreasService.GetAllAreas(true);
                 if(userId.HasValue && userId.Value > 0)
                 {
-                    UserData userInformation = ReadDataService.GetUserById(userId.Value);
+                    UserData userInformation = UsersService.GetUserById(userId.Value);
                     ViewBag.userInformation = userInformation;
                 }
 
@@ -115,18 +115,18 @@
                 // Guardar o actualizar el usuario (según sea el caso).
                 if (userInformation.CollaboratorId != 0)
                 {
-                    successResponse = UpdateDataService.UpdateUserInformation(userInformation);
+                    successResponse = UsersService.UpdateUserInformation(userInformation);
                     if (successResponse)
                     {
-                        successResponse = UpdateDataService.UpdateUserAreas(areasIds, userInformation.CollaboratorId);
+                        successResponse = UserAreasService.UpdateUserAreas(areasIds, userInformation.CollaboratorId);
                     }
                 }
                 else
                 {
-                    int collaboratorId = SaveDataService.SaveUserInformation(userInformation);
+                    int collaboratorId = UsersService.SaveUserInformation(userInformation);
                     if (collaboratorId != 0)
                     {
-                        successResponse = SaveDataService.BulkInsertUserAreas(areasIds, collaboratorId);
+                        successResponse = UserAreasService.BulkInsertUserAreas(areasIds, collaboratorId);
                     }
                 }
             }
@@ -150,11 +150,11 @@
             try
             {
                 // Eliminar la relación entre usuario y área(s).
-                successResponse = AreasService.DeleteUserAreas(collaboratorId);
+                successResponse = UserAreasService.DeleteUserAreas(collaboratorId);
                 if (successResponse)
                 {
                     // Eliminar la información general del usuario.
-                    successResponse = DeleteDataService.DeleteUserInformation(collaboratorId);
+                    successResponse = UsersService.DeleteUserInformation(collaboratorId);
                 }
             }
             catch (Exception)

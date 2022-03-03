@@ -36,23 +36,28 @@
         /// <summary>
         /// Método utilizado para recuperar el catálogo asociado a los tipos de archivos.
         /// </summary>
+        /// <param name="percentageFile">Bandera para determinar si el archivo es del tipo porcentaje.</param>
         /// <returns>Devuelve la lista de tipos de archivos dados de alta en la aplicación.</returns>
-        public List<FileType> GetFileTypes()
+        public List<FileType> GetFileTypes(bool? percentageFile = null)
         {
             List<FileType> fileTypeCatalog = new List<FileType>();
             try
             {
+                SqlCommand sqlcmd = new SqlCommand();
                 StringBuilder query = new StringBuilder();
                 query.Append("SELECT ").Append(string.Join(",", FileTypeFields));
-                query.Append(" FROM [dbo].[Cat_TiposDeArchivos] ");
+                query.Append(" FROM [dbo].[Cat_TiposDeArchivos] WHERE 1 = 1 ");
+                if (percentageFile.HasValue)
+                {
+                    query.Append(" AND archivoDePorcentaje = @percentageFile ");
+                    sqlcmd.Parameters.AddWithValue("@percentageFile", percentageFile);
+                }
+                
                 query.Append(" ORDER BY tipoArchivo ASC ");
                 Open();
-                SqlCommand sqlcmd = new SqlCommand
-                {
-                    Connection = Connection,
-                    CommandType = CommandType.Text,
-                    CommandText = query.ToString()
-                };
+                sqlcmd.Connection = Connection;
+                sqlcmd.CommandType = CommandType.Text;
+                sqlcmd.CommandText = query.ToString();
                 var reader = sqlcmd.ExecuteReader();
                 while (reader.Read())
                 {

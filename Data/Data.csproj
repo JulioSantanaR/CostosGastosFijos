@@ -50,10 +50,16 @@
     <Compile Include="CommonDAO.cs" />
     <Compile Include="CubeDAO.cs" />
     <Compile Include="DAO\AreasDAO.cs" />
+    <Compile Include="DAO\LogProjectionDAO.cs" />
+    <Compile Include="DAO\StillsPercentageDAO.cs" />
+    <Compile Include="DAO\MixBrandPercentageDAO.cs" />
     <Compile Include="DAO\BudgetDAO.cs" />
     <Compile Include="DAO\FileLogDAO.cs" />
+    <Compile Include="DAO\ChannelPercentageDAO.cs" />
     <Compile Include="DAO\PromotoriaDAO.cs" />
-    <Compile Include="DeleteDataDAO.cs" />
+    <Compile Include="DAO\UserAreasDAO.cs" />
+    <Compile Include="DAO\UsersDAO.cs" />
+    <Compile Include="DAO\VolumeDAO.cs" />
     <Compile Include="DAO\FileTypeDAO.cs" />
     <Compile Include="Mapping.cs" />
     <Compile Include="Models\AccountArea.cs" />
@@ -62,13 +68,16 @@
     <Compile Include="Models\ChargeType.cs" />
     <Compile Include="Models\FileLogData.cs" />
     <Compile Include="Models\FileType.cs" />
+    <Compile Include="Models\LogProjection.cs" />
     <Compile Include="Models\PromotoriaDB.cs" />
     <Compile Include="Models\PromotoriaFile.cs" />
     <Compile Include="Models\Request\AccountsDataRequest.cs" />
     <Compile Include="Models\Request\DataTableRequest.cs" />
     <Compile Include="Models\Request\DeleteFileRequest.cs" />
     <Compile Include="Models\Request\LogFileRequest.cs" />
+    <Compile Include="Models\Request\PivotTableRequest.cs" />
     <Compile Include="Models\Request\PromotoriaDataRequest.cs" />
+    <Compile Include="Models\Request\BasePercentageRequest.cs" />
     <Compile Include="Models\Request\VolumeDataRequest.cs" />
     <Compile Include="Models\Response\AccountsResponse.cs" />
     <Compile Include="Models\Response\AreasTableResponse.cs" />
@@ -78,11 +87,9 @@
     <Compile Include="Models\UserAreaRelation.cs" />
     <Compile Include="Models\UserData.cs" />
     <Compile Include="Models\UserRole.cs" />
-    <Compile Include="ReadDataDAO.cs" />
-    <Compile Include="SaveDataDAO.cs" />
+    <Compile Include="DAO\UserRolesDAO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\GeneralRepository.cs" />
-    <Compile Include="UpdateDataDAO.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
