@@ -4,3 +4,8 @@ _ReSharper.*
 bin
 obj
 packages
+Data/bin/*
+Data/obj/*
+Business/bin/*
+Business/obj/*
+.vs

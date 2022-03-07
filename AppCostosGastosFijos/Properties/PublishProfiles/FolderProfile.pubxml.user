@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\julio.santana\Desktop\CGFijos</_PublishTargetUrl>
-    <History>True|2022-03-04T11:08:22.1781024Z;True|2022-03-03T11:08:08.1909414-06:00;True|2022-03-03T03:43:25.6510954-06:00;True|2022-03-03T02:48:05.9137731-06:00;True|2022-03-02T05:04:48.8426120-06:00;True|2022-02-14T16:53:58.5663797-06:00;True|2022-01-20T09:32:02.5760763-06:00;True|2022-01-14T04:13:32.8550902-06:00;True|2021-12-31T09:28:27.5789307-06:00;True|2021-12-31T09:27:55.8823655-06:00;True|2021-12-31T09:27:17.7831417-06:00;True|2021-12-28T03:59:15.8760027-06:00;True|2021-12-28T03:45:11.4088172-06:00;True|2021-09-28T14:55:43.5262576-05:00;True|2021-09-27T13:42:57.7543493-05:00;</History>
+    <History>True|2022-03-07T10:06:27.5066482Z;True|2022-03-04T05:08:22.1781024-06:00;True|2022-03-03T11:08:08.1909414-06:00;True|2022-03-03T03:43:25.6510954-06:00;True|2022-03-03T02:48:05.9137731-06:00;True|2022-03-02T05:04:48.8426120-06:00;True|2022-02-14T16:53:58.5663797-06:00;True|2022-01-20T09:32:02.5760763-06:00;True|2022-01-14T04:13:32.8550902-06:00;True|2021-12-31T09:28:27.5789307-06:00;True|2021-12-31T09:27:55.8823655-06:00;True|2021-12-31T09:27:17.7831417-06:00;True|2021-12-28T03:59:15.8760027-06:00;True|2021-12-28T03:45:11.4088172-06:00;True|2021-09-28T14:55:43.5262576-05:00;True|2021-09-27T13:42:57.7543493-05:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="bin/Antlr3.Runtime.dll">
@@ -15,16 +15,16 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>09/10/2013 16:29:20</publishTime>
     </File>
     <File Include="bin/AppCostosGastosFijos.dll">
-      <publishTime>03/04/2022 05:08:18</publishTime>
+      <publishTime>03/07/2022 04:27:39</publishTime>
     </File>
     <File Include="bin/AppCostosGastosFijos.pdb">
-      <publishTime>03/04/2022 05:08:18</publishTime>
+      <publishTime>03/07/2022 04:27:39</publishTime>
     </File>
     <File Include="bin/Business.dll">
-      <publishTime>03/04/2022 05:08:18</publishTime>
+      <publishTime>03/07/2022 04:27:39</publishTime>
     </File>
     <File Include="bin/Business.pdb">
-      <publishTime>03/04/2022 05:08:18</publishTime>
+      <publishTime>03/07/2022 04:27:39</publishTime>
     </File>
     <File Include="bin/ClosedXML.dll">
       <publishTime>12/16/2020 03:59:08</publishTime>
@@ -33,10 +33,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>12/16/2020 03:59:08</publishTime>
     </File>
     <File Include="bin/Data.dll">
-      <publishTime>03/04/2022 05:08:17</publishTime>
+      <publishTime>03/07/2022 04:27:38</publishTime>
     </File>
     <File Include="bin/Data.pdb">
-      <publishTime>03/04/2022 05:08:17</publishTime>
+      <publishTime>03/07/2022 04:27:38</publishTime>
     </File>
     <File Include="bin/DocumentFormat.OpenXml.dll">
       <publishTime>06/06/2017 17:59:22</publishTime>

@@ -42,7 +42,7 @@
                     SqlConnection connectionData = GetConnection();
                     SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(connectionData)
                     {
-                        DestinationTableName = "[dbo].[Tbl_PorcentajeBase]",
+                        DestinationTableName = "[dbo].[Tbl_PorcentajeBase_Marca]",
                         BulkCopyTimeout = 400
                     };
 
@@ -155,7 +155,7 @@
             {
                 SqlCommand sqlcmd = new SqlCommand();
                 StringBuilder query = new StringBuilder();
-                query.Append("DELETE [dbo].[Tbl_PorcentajeBase] WHERE 1 = 1 ");
+                query.Append("DELETE [dbo].[Tbl_PorcentajeBase_Marca] WHERE 1 = 1 ");
                 if (yearData.HasValue && yearData.Value > 0)
                 {
                     query.Append(" AND anio = @yearData ");
