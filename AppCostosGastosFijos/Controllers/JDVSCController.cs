@@ -228,9 +228,10 @@
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
         /// <param name="chargeTypeName">Nombre asociado al tipo de carga.</param>
+        /// <param name="fileTypeName">Nombre asociado al tipo de archivo a cargar.</param>
         /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
         [HttpPost]
-        public ActionResult UploadPercentages(int yearData, int chargeTypeData, string chargeTypeName)
+        public ActionResult UploadPercentages(int yearData, int chargeTypeData, string chargeTypeName, string fileTypeName)
         {
             bool successResponse = false;
             string message = string.Empty;
@@ -252,7 +253,19 @@
                                 ChargeTypeName = chargeTypeName,
                                 Collaborator = userInformation.CollaboratorId,
                             };
-                            successResponse = StillsPercentageService.SaveBasePercentage(percentageData);
+                            switch (fileTypeName)
+                            {
+                                case "Porcentajes Stills":
+                                    successResponse = StillsPercentageService.SaveStillsPercentage(percentageData);
+                                    break;
+                                case "Porcentajes Ades":
+                                    successResponse = AdesPercentageService.SaveAdesPercentage(percentageData);
+                                    break;
+                                case "Porcentajes Lácteos":
+                                    successResponse = LacteosPercentagesService.SaveLacteosPercentage(percentageData);
+                                    break;
+                            }
+
                             if (!successResponse)
                             {
                                 break;

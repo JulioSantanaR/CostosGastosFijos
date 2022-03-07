@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.IO;
     using System.Linq;
     using System.Web;
@@ -12,16 +11,16 @@
     using Data.Repositories;
 
     /// <summary>
-    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a los porcentajes de Stills, usados en la proyección.
+    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a los porcentajes de ADES.
     /// </summary>
-    public static class StillsPercentageService
+    public class AdesPercentageService
     {
         /// <summary>
-        /// Método utilizado para realizar el proceso que guarda los porcentajes base y los porcentajes por marca.
+        /// Método utilizado para realizar el proceso que guarda los porcentajes asociados al portafolio de ADES.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
         /// <returns>Devuelve una bandera para determinar si todo el proceso fue satisfactorio o no.</returns>
-        public static bool SaveStillsPercentage(BasePercentageRequest percentageData)
+        public static bool SaveAdesPercentage(BasePercentageRequest percentageData)
         {
             bool successProcess = false;
             try
@@ -36,7 +35,7 @@
                         FileName = fileInfo.FileName,
                         ChargeDate = DateTime.Now,
                         ApprovalFlag = false,
-                        FileTypeName = "Porcentajes Stills",
+                        FileTypeName = "Porcentajes Ades",
                         UserId = percentageData.Collaborator,
                         ChargeTypeId = percentageData.ChargeType,
                         YearData = percentageData.YearData,
@@ -51,17 +50,17 @@
                         {
                             percentageData.FileLogId = fileLogId;
 
-                            // Columnas - Asignación Marca - Volumen.
-                            List<string> brandVolumeCol = new List<string>()
+                            // Columnas - Unitario Convento.
+                            List<string> conventCol = new List<string>()
                             {
-                                "Canal", "Criterio", "Marca", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                                "AdeS Convento", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                             };
 
-                            // Columnas - Asignación Embotellador.
-                            List<string> bottlerCol = new List<string>()
+                            // Columnas - Asignación Frutal y Dairies.
+                            List<string> frutalDairiesCol = new List<string>()
                             {
-                                "Canal", "Filtro", "Formato Cadena", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                                "Megagestion", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                             };
 
@@ -74,13 +73,13 @@
                                 var singlePercentageTbl = percentagesTable.Tables[i];
                                 var tblColumns = CommonService.ClearDataTableStructure(ref singlePercentageTbl);
                                 percentageData.PercentagesTable = singlePercentageTbl;
-                                if (tblColumns.All(str => brandVolumeCol.Contains(str.ColumnName)))
+                                if (tblColumns.All(str => frutalDairiesCol.Contains(str.ColumnName)))
                                 {
-                                    successProcess = SaveBrandVolumePercentage(percentageData); // Guardar el porcentaje Marca-Volumen.
+                                    successProcess = SaveDairiesFrutalPercentage(percentageData); // Guardar el porcentaje Asignación Frutal y Dairies.
                                 }
-                                else if (tblColumns.All(str => bottlerCol.Contains(str.ColumnName)))
+                                else if (tblColumns.All(str => conventCol.Contains(str.ColumnName)))
                                 {
-                                    successProcess = BulkInsertBottler(percentageData); // Guardar el porcentaje Asignación Embotellador.
+                                    successProcess = SaveAdesConventPercentage(percentageData); // Guardar el porcentaje Unitario Convento.
                                 }
                                 else if (tblColumns.All(str => channelCol.Contains(str.ColumnName)))
                                 {
@@ -111,60 +110,23 @@
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("SaveStillsPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveAdesPercentage()." + "Error: " + ex.Message);
             }
 
             return successProcess;
         }
 
         /// <summary>
-        /// Método utilizado para guardar los porcentajes de asignación "Volumen-Marca".
+        /// Método utilizado para guardar los porcentajes para distribuir "Ades Dairies y Ades Frutal".
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
         /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente o no.</returns>
-        public static bool SaveBrandVolumePercentage(BasePercentageRequest percentageData)
-        {
-            bool successProcess = false;
-            try
-            {
-                if (percentageData != null)
-                {
-                    var percentageTbl = percentageData.PercentagesTable;
-                    int yearData = percentageData.YearData;
-                    int chargeTypeId = percentageData.ChargeType;
-                    int fileLogId = percentageData.FileLogId;
-
-                    // Guardar la información de los porcentajes base.
-                    successProcess = BulkInsertBasePercentage(percentageData);
-
-                    // Realizar el cálculo de los porcentajes por marca.
-                    if (successProcess)
-                    {
-                        string chargeTypeName = CommonService.GetExerciseType(percentageData.ChargeTypeName);
-                        successProcess = MixBrandPercentageService.SavePercentageByBrand(yearData, chargeTypeId, chargeTypeName, fileLogId);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("SaveBrandVolumePercentage()." + "Error: " + ex.Message);
-            }
-
-            return successProcess;
-        }
-
-        /// <summary>
-        /// Método utilizado para guardar la información de los porcentajes base para Stills.
-        /// </summary>
-        /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public static bool BulkInsertBasePercentage(BasePercentageRequest percentageData)
+        public static bool SaveDairiesFrutalPercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
+                AdesPercentageDAO adesPercentageDao = new AdesPercentageDAO();
                 PivotTableRequest pivotTbl = new PivotTableRequest()
                 {
                     ColumnsPivot = new List<string> { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" },
@@ -173,7 +135,7 @@
                 };
                 List<PivotTableRequest> pivotRequest = new List<PivotTableRequest>() { pivotTbl };
                 percentageData.PercentagesTable = CommonService.UnpivotDataTable(percentageData.PercentagesTable, pivotRequest);
-                successInsert = stillsPercentageDao.BulkInsertBasePercentage(percentageData);
+                successInsert = adesPercentageDao.SaveDairiesFrutalPercentage(percentageData);
             }
             catch (Exception ex)
             {
@@ -185,81 +147,78 @@
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información asociada a los porcentajes para la asignación por embotellador.
+        /// Método utilizado para guardar la información del costo unitario de Ades Convento.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Devuelve una bandera para determinar si los porcentajes se insertaron de manera correcta.</returns>
-        public static bool BulkInsertBottler(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente o no.</returns>
+        public static bool SaveAdesConventPercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
             {
-                if (percentageData != null)
+                AdesPercentageDAO adesPercentageDao = new AdesPercentageDAO();
+                PivotTableRequest pivotTbl = new PivotTableRequest()
                 {
-                    StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                    PivotTableRequest pivotTbl = new PivotTableRequest()
-                    {
-                        ColumnsPivot = new List<string> { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" },
-                        NewColumnName = "Porcentaje",
-                        IncludeMonth = true
-                    };
-                    List<PivotTableRequest> pivotRequest = new List<PivotTableRequest>() { pivotTbl };
-                    percentageData.PercentagesTable = CommonService.UnpivotDataTable(percentageData.PercentagesTable, pivotRequest);
-                    successInsert = stillsPercentageDao.BulkInsertBottler(percentageData);
-                }
+                    ColumnsPivot = new List<string> { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" },
+                    NewColumnName = "UnitarioConvento",
+                    IncludeMonth = true
+                };
+                List<PivotTableRequest> pivotRequest = new List<PivotTableRequest>() { pivotTbl };
+                percentageData.PercentagesTable = CommonService.UnpivotDataTable(percentageData.PercentagesTable, pivotRequest);
+                successInsert = adesPercentageDao.SaveAdesConventPercentage(percentageData);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertBottler()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveAdesConventPercentage()." + "Error: " + ex.Message);
             }
 
             return successInsert;
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes base, de acuerdo a un año y tipo de carga específicos.
+        /// Método utilizado para eliminar la información asociada a los porcentajes para distribuir "Ades Dairies" y "Ades Frutal".
         /// </summary>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
         /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public static bool DeleteBasePercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        public static bool DeleteDairiesFrutalPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                successDelete = stillsPercentageDao.DeleteBasePercentage(yearData, chargeTypeData, fileLogId);
+                AdesPercentageDAO adesPercentageDao = new AdesPercentageDAO();
+                successDelete = adesPercentageDao.DeleteDairiesFrutalPercentage(yearData, chargeTypeData, fileLogId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBasePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteDairiesFrutalPercentage()." + "Error: " + ex.Message);
             }
 
             return successDelete;
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes de asignación por embotellador.
+        /// Método utilizado para eliminar la información del costo unitario de Ades Convento.
         /// </summary>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
         /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public static bool DeleteBottlerPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        public static bool DeleteAdesConventPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                successDelete = stillsPercentageDao.DeleteBottlerPercentage(yearData, chargeTypeData, fileLogId);
+                AdesPercentageDAO adesPercentageDao = new AdesPercentageDAO();
+                successDelete = adesPercentageDao.DeleteAdesConventPercentage(yearData, chargeTypeData, fileLogId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBottlerPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteAdesConventPercentage()." + "Error: " + ex.Message);
             }
 
             return successDelete;

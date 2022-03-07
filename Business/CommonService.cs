@@ -6,6 +6,7 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using Data.Models.Request;
     using Data.Repositories;
     using ExcelDataReader;
@@ -62,6 +63,21 @@
             {
                 fileStream.Close();
             }
+        }
+
+        /// <summary>
+        /// Método utilizado para remover renglones en blanco, columnas nulas y acentos dentro de un dataTable.
+        /// </summary>
+        /// <param name="dataTable">DataTable que se pretende limpiar.</param>
+        /// <returns>Devuelve las columnas "limpias" asociadas al DataTable.</returns>
+        public static List<DataColumn> ClearDataTableStructure(ref DataTable dataTable)
+        {
+            dataTable = RemoveWhiteSpaces(dataTable);
+            RemoveNullColumns(ref dataTable);
+            var tblColumns = dataTable.Columns.Cast<DataColumn>()
+                .Select(dc => { dc.ColumnName = CommonService.RemoveDiacritics(dc.ColumnName); return dc; })
+                .ToList();
+            return tblColumns;
         }
 
         /// <summary>
@@ -158,6 +174,27 @@
         }
 
         /// <summary>
+        /// Método utilizado para remover acentos en una cadena específica.
+        /// </summary>
+        /// <param name="text">Cadena a la que se le desean remover los acentos.</param>
+        /// <returns>Devuelve la cadena sin acentos.</returns>
+        public static string RemoveDiacritics(string text)
+        {
+            string formD = text.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+            foreach (char ch in formD)
+            {
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(ch);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        /// <summary>
         /// Método utilizado para recuperar el número asociado a un mes de acuerdo a su nombre.
         /// </summary>
         /// <param name="monthName">Nombre asociado al mes.</param>
@@ -166,6 +203,19 @@
         {
             int monthNumber = DateTime.ParseExact(monthName, "MMMM", new CultureInfo("es-ES", false)).Month;
             return monthNumber;
+        }
+
+        /// <summary>
+        /// Método utilizado para devolver el tipo de ejercicio de acuerdo al nombre del tipo de carga.
+        /// </summary>
+        /// <param name="chargeTypeName">Nombre asociado al tipo de carga.</param>
+        /// <returns>Devuelve el tipo de ejercicio de acuerdo al tipo de carga.</returns>
+        public static string GetExerciseType(string chargeTypeName)
+        {
+            chargeTypeName = chargeTypeName.ToLower();
+            bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
+            string exerciseType = bpExercise ? "BP" : "Rolling";
+            return exerciseType;
         }
     }
 }

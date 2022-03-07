@@ -105,7 +105,8 @@
             yearId: "#" + fileSection + "Year",
             chargeTypeId: "#" + fileSection + "ChargeType",
             includeArea: '@(includeArea)' == "True",
-            includeChargeTypeName: '@(includeChargeTypeName)' == "True"
+            includeChargeTypeName: '@(includeChargeTypeName)' == "True",
+            includeFileType: '@(includeFileType)' == "True"
         };
         FileCharge(chargeData);
     });

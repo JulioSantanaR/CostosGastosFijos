@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.IO;
     using System.Linq;
     using System.Web;
@@ -12,16 +11,16 @@
     using Data.Repositories;
 
     /// <summary>
-    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a los porcentajes de Stills, usados en la proyección.
+    /// Clase intermedia entre el acceso a datos y la capa del cliente para manipular la información asociada a los porcentajes de Lácteos, usados en la proyección.
     /// </summary>
-    public static class StillsPercentageService
+    public class LacteosPercentagesService
     {
         /// <summary>
-        /// Método utilizado para realizar el proceso que guarda los porcentajes base y los porcentajes por marca.
+        /// Método utilizado para realizar el proceso que guarda los porcentajes asociados al portafolio de LÁCTEOS.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
         /// <returns>Devuelve una bandera para determinar si todo el proceso fue satisfactorio o no.</returns>
-        public static bool SaveStillsPercentage(BasePercentageRequest percentageData)
+        public static bool SaveLacteosPercentage(BasePercentageRequest percentageData)
         {
             bool successProcess = false;
             try
@@ -36,7 +35,7 @@
                         FileName = fileInfo.FileName,
                         ChargeDate = DateTime.Now,
                         ApprovalFlag = false,
-                        FileTypeName = "Porcentajes Stills",
+                        FileTypeName = "Porcentajes Lácteos",
                         UserId = percentageData.Collaborator,
                         ChargeTypeId = percentageData.ChargeType,
                         YearData = percentageData.YearData,
@@ -51,18 +50,11 @@
                         {
                             percentageData.FileLogId = fileLogId;
 
-                            // Columnas - Asignación Marca - Volumen.
-                            List<string> brandVolumeCol = new List<string>()
+                            // Columnas - Asignación Subcategoría.
+                            List<string> subcategoryCol = new List<string>()
                             {
-                                "Canal", "Criterio", "Marca", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-                            };
-
-                            // Columnas - Asignación Embotellador.
-                            List<string> bottlerCol = new List<string>()
-                            {
-                                "Canal", "Filtro", "Formato Cadena", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                                "Cadena Suministro", "Canal", "Subcategoria", "Asignacion", "Enero", "Febrero", "Marzo", "Abril",
+                                "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
                             };
 
                             // Columnas - Asignación Canal.
@@ -74,13 +66,9 @@
                                 var singlePercentageTbl = percentagesTable.Tables[i];
                                 var tblColumns = CommonService.ClearDataTableStructure(ref singlePercentageTbl);
                                 percentageData.PercentagesTable = singlePercentageTbl;
-                                if (tblColumns.All(str => brandVolumeCol.Contains(str.ColumnName)))
+                                if (tblColumns.All(str => subcategoryCol.Contains(str.ColumnName)))
                                 {
-                                    successProcess = SaveBrandVolumePercentage(percentageData); // Guardar el porcentaje Marca-Volumen.
-                                }
-                                else if (tblColumns.All(str => bottlerCol.Contains(str.ColumnName)))
-                                {
-                                    successProcess = BulkInsertBottler(percentageData); // Guardar el porcentaje Asignación Embotellador.
+                                    successProcess = SaveSubcategoryPercentage(percentageData); // Guardar el porcentaje Asignación Subcategoría.
                                 }
                                 else if (tblColumns.All(str => channelCol.Contains(str.ColumnName)))
                                 {
@@ -111,18 +99,18 @@
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("SaveStillsPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveLacteosPercentage()." + "Error: " + ex.Message);
             }
 
             return successProcess;
         }
 
         /// <summary>
-        /// Método utilizado para guardar los porcentajes de asignación "Volumen-Marca".
+        /// Método utilizado para guardar la información relacionada con los porcentajes de cada subcategoría.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente o no.</returns>
-        public static bool SaveBrandVolumePercentage(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente.</returns>
+        public static bool SaveSubcategoryPercentage(BasePercentageRequest percentageData)
         {
             bool successProcess = false;
             try
@@ -135,36 +123,35 @@
                     int fileLogId = percentageData.FileLogId;
 
                     // Guardar la información de los porcentajes base.
-                    successProcess = BulkInsertBasePercentage(percentageData);
+                    successProcess = InsertSubcategoryBasePercentage(percentageData);
 
-                    // Realizar el cálculo de los porcentajes por marca.
+                    // Guardar los porcentajes de cada subcategoría.
                     if (successProcess)
                     {
-                        string chargeTypeName = CommonService.GetExerciseType(percentageData.ChargeTypeName);
-                        successProcess = MixBrandPercentageService.SavePercentageByBrand(yearData, chargeTypeId, chargeTypeName, fileLogId);
+                        successProcess = SaveSubcategoryManualPercentage(percentageData);
                     }
                 }
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("SaveBrandVolumePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveSubcategoryPercentage()." + "Error: " + ex.Message);
             }
 
             return successProcess;
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información de los porcentajes base para Stills.
+        /// Método utilizado para insertar la información de los porcentajes base de cada subcategoría.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public static bool BulkInsertBasePercentage(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente.</returns>
+        public static bool InsertSubcategoryBasePercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
+                LacteosPercentagesDAO lacteosPercentageDao = new LacteosPercentagesDAO();
                 PivotTableRequest pivotTbl = new PivotTableRequest()
                 {
                     ColumnsPivot = new List<string> { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" },
@@ -173,93 +160,82 @@
                 };
                 List<PivotTableRequest> pivotRequest = new List<PivotTableRequest>() { pivotTbl };
                 percentageData.PercentagesTable = CommonService.UnpivotDataTable(percentageData.PercentagesTable, pivotRequest);
-                successInsert = stillsPercentageDao.BulkInsertBasePercentage(percentageData);
+                successInsert = lacteosPercentageDao.InsertSubcategoryBasePercentage(percentageData);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertBasePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("InsertSubcategoryBasePercentage()." + "Error: " + ex.Message);
             }
 
             return successInsert;
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información asociada a los porcentajes para la asignación por embotellador.
+        /// Método utilizado para ejecutar el stored procedure que guarda los porcentajes de cada subcategoría en el formato correspondiente.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Devuelve una bandera para determinar si los porcentajes se insertaron de manera correcta.</returns>
-        public static bool BulkInsertBottler(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente.</returns>
+        public static bool SaveSubcategoryManualPercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
             {
-                if (percentageData != null)
-                {
-                    StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                    PivotTableRequest pivotTbl = new PivotTableRequest()
-                    {
-                        ColumnsPivot = new List<string> { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" },
-                        NewColumnName = "Porcentaje",
-                        IncludeMonth = true
-                    };
-                    List<PivotTableRequest> pivotRequest = new List<PivotTableRequest>() { pivotTbl };
-                    percentageData.PercentagesTable = CommonService.UnpivotDataTable(percentageData.PercentagesTable, pivotRequest);
-                    successInsert = stillsPercentageDao.BulkInsertBottler(percentageData);
-                }
+                int yearData = percentageData.YearData;
+                int chargeTypeId = percentageData.ChargeType;
+                int fileLogId = percentageData.FileLogId;
+
+                LacteosPercentagesDAO lacteosPercentageDao = new LacteosPercentagesDAO();
+                successInsert = lacteosPercentageDao.SaveSubcategoryManualPercentage(yearData, chargeTypeId, fileLogId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertBottler()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveSubcategoryManualPercentage()." + "Error: " + ex.Message);
             }
 
             return successInsert;
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes base, de acuerdo a un año y tipo de carga específicos.
+        /// Método utilizado para eliminar la información de los porcentajes base de cada subcategoría.
         /// </summary>
-        /// <param name="yearData">Año de carga.</param>
-        /// <param name="chargeTypeData">Tipo de carga.</param>
-        /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
-        /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public static bool DeleteBasePercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
+        /// <returns>Devuelve una bandera para determinar si la información se fue eliminada correctamente.</returns>
+        public static bool DeleteSubcategoryBasePercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                successDelete = stillsPercentageDao.DeleteBasePercentage(yearData, chargeTypeData, fileLogId);
+                LacteosPercentagesDAO lacteosPercentageDao = new LacteosPercentagesDAO();
+                successDelete = lacteosPercentageDao.DeleteSubcategoryBasePercentage(yearData, chargeTypeData, fileLogId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBasePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteSubcategoryBasePercentage()." + "Error: " + ex.Message);
             }
 
             return successDelete;
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes de asignación por embotellador.
+        /// Método utilizado para eliminar la información de los porcentajes asociados a cada subcategoría.
         /// </summary>
-        /// <param name="yearData">Año de carga.</param>
-        /// <param name="chargeTypeData">Tipo de carga.</param>
-        /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
-        /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public static bool DeleteBottlerPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
+        /// <returns>Devuelve una bandera para determinar si la información se fue eliminada correctamente.</returns>
+        public static bool DeleteSubcategoryManualPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
-                StillsPercentageDAO stillsPercentageDao = new StillsPercentageDAO();
-                successDelete = stillsPercentageDao.DeleteBottlerPercentage(yearData, chargeTypeData, fileLogId);
+                LacteosPercentagesDAO lacteosPercentageDao = new LacteosPercentagesDAO();
+                successDelete = lacteosPercentageDao.DeleteSubcategoryManualPercentage(yearData, chargeTypeData, fileLogId);
             }
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBottlerPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteSubcategoryManualPercentage()." + "Error: " + ex.Message);
             }
 
             return successDelete;

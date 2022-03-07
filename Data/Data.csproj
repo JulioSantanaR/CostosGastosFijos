@@ -49,7 +49,9 @@
     <Compile Include="CatalogDAO.cs" />
     <Compile Include="CommonDAO.cs" />
     <Compile Include="CubeDAO.cs" />
+    <Compile Include="DAO\AdesPercentageDAO.cs" />
     <Compile Include="DAO\AreasDAO.cs" />
+    <Compile Include="DAO\LacteosPercentagesDAO.cs" />
     <Compile Include="DAO\LogProjectionDAO.cs" />
     <Compile Include="DAO\StillsPercentageDAO.cs" />
     <Compile Include="DAO\MixBrandPercentageDAO.cs" />

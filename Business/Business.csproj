@@ -70,7 +70,9 @@
     <Compile Include="CatalogService.cs" />
     <Compile Include="CommonService.cs" />
     <Compile Include="CubeService.cs" />
+    <Compile Include="Services\AdesPercentageService.cs" />
     <Compile Include="Services\AreasService.cs" />
+    <Compile Include="Services\LacteosPercentagesService.cs" />
     <Compile Include="Services\LogProjectionService.cs" />
     <Compile Include="Services\StillsPercentageService.cs" />
     <Compile Include="Services\MixBrandPercentageService.cs" />

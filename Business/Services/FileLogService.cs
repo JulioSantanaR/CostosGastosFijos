@@ -42,6 +42,7 @@
         public static bool DeleteFileLog(DeleteFileRequest deleteFileRequest)
         {
             bool successDelete = false;
+            bool deleteChannelPercent = false;
             try
             {
                 if (deleteFileRequest != null)
@@ -82,16 +83,48 @@
                                     successDelete = StillsPercentageService.DeleteBottlerPercentage(null, null, logFileId);
                                     if (successDelete)
                                     {
-                                        successDelete = StillsPercentageService.DeleteManualPercentageChannel(null, null, logFileId);
-                                        if (successDelete)
-                                        {
-                                            successDelete = StillsPercentageService.DeleteBasePercentageChannel(null, null, logFileId);
-                                        }
+                                        deleteChannelPercent = true;
                                     }
                                 }
                             }
 
                             break;
+
+                        case "Porcentajes Ades":
+                            successDelete = AdesPercentageService.DeleteAdesConventPercentage(null, null, logFileId);
+                            if (successDelete)
+                            {
+                                successDelete = AdesPercentageService.DeleteDairiesFrutalPercentage(null, null, logFileId);
+                                if (successDelete)
+                                {
+                                    deleteChannelPercent = true;
+                                }
+                            }
+
+                            break;
+
+                        case "Porcentajes Lácteos":
+                            successDelete = LacteosPercentagesService.DeleteSubcategoryBasePercentage(null, null, logFileId);
+                            if (successDelete)
+                            {
+                                successDelete = LacteosPercentagesService.DeleteSubcategoryManualPercentage(null, null, logFileId);
+                                if (successDelete)
+                                {
+                                    deleteChannelPercent = true;
+                                }
+                            }
+
+                            break;
+                    }
+
+                    // Eliminar los porcentajes por canal.
+                    if (successDelete && deleteChannelPercent)
+                    {
+                        successDelete = ChannelPercentageService.DeleteManualPercentageChannel(null, null, logFileId);
+                        if (successDelete)
+                        {
+                            successDelete = ChannelPercentageService.DeleteBasePercentageChannel(null, null, logFileId);
+                        }
                     }
 
                     // Eliminar la información general del archivo en el historial.

@@ -9,9 +9,9 @@
     using Data.Repositories;
 
     /// <summary>
-    /// Clase asociada al acceso a datos para manipular la información asociada a los porcentajes de Stills, usados en la proyección.
+    /// Clase asociada al acceso a datos para manipular la información asociada a los porcentajes de Ades.
     /// </summary>
-    public class StillsPercentageDAO : CommonDAO
+    public class AdesPercentageDAO : CommonDAO
     {
         /// <summary>
         /// Cadena de conexión asociada a la Base de Datos de Costos y Gastos fijos.
@@ -21,17 +21,17 @@
         /// <summary>
         /// Constructor default de la clase.
         /// </summary>
-        public StillsPercentageDAO()
+        public AdesPercentageDAO()
         {
             ConnectionString = connectionString;
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información de los porcentajes base para Stills.
+        /// Método utilizado para guardar los porcentajes para distribuir "Ades Dairies y Ades Frutal".
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Bandera para determinar si la inserción fue correcta o no.</returns>
-        public bool BulkInsertBasePercentage(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente o no.</returns>
+        public bool SaveDairiesFrutalPercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
@@ -42,7 +42,7 @@
                     SqlConnection connectionData = GetConnection();
                     SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(connectionData)
                     {
-                        DestinationTableName = "[dbo].[Tbl_PorcentajeBase]",
+                        DestinationTableName = "[dbo].[Tbl_Porcentaje_FrutalDairies]",
                         BulkCopyTimeout = 400
                     };
 
@@ -51,19 +51,7 @@
                     DataTableAddColumn(percentageData.PercentagesTable, "cve_TipoCarga", percentageData.ChargeType);
                     DataTableAddColumn(percentageData.PercentagesTable, "cve_LogArchivo", percentageData.FileLogId);
 
-                    // Mapear columnas en el archivo hacia la tabla.
-                    sqlBulkCopy.ColumnMappings.Add("Canal", "canal");
-                    sqlBulkCopy.ColumnMappings.Add("Criterio", "criterio");
-                    if (percentageData.PercentagesTable.Columns.Contains("marca"))
-                    {
-                        sqlBulkCopy.ColumnMappings.Add("Marca", "marca");
-                    }
-                    else
-                    {
-                        DataTableAddColumn(percentageData.PercentagesTable, "Marca", "");
-                        sqlBulkCopy.ColumnMappings.Add("Marca", "marca");
-                    }
-
+                    sqlBulkCopy.ColumnMappings.Add("Megagestion", "megagestion");
                     sqlBulkCopy.ColumnMappings.Add("Mes", "mes");
                     sqlBulkCopy.ColumnMappings.Add("Porcentaje", "porcentaje");
                     sqlBulkCopy.ColumnMappings.Add("anio", "anio");
@@ -78,7 +66,7 @@
             {
                 successInsert = false;
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertBasePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveDairiesFrutalPercentage()." + "Error: " + ex.Message);
             }
             finally
             {
@@ -89,11 +77,11 @@
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información asociada a los porcentajes para la asignación por embotellador.
+        /// Método utilizado para guardar la información del costo unitario de Ades Convento.
         /// </summary>
         /// <param name="percentageData">Objeto tipo request que contiene la información para guardar los porcentajes.</param>
-        /// <returns>Devuelve una bandera para determinar si los porcentajes se insertaron de manera correcta.</returns>
-        public bool BulkInsertBottler(BasePercentageRequest percentageData)
+        /// <returns>Devuelve una bandera para determinar si la información se guardó correctamente o no.</returns>
+        public bool SaveAdesConventPercentage(BasePercentageRequest percentageData)
         {
             bool successInsert = false;
             try
@@ -104,7 +92,7 @@
                     SqlConnection connectionData = GetConnection();
                     SqlBulkCopy sqlBulkCopy = new SqlBulkCopy(connectionData)
                     {
-                        DestinationTableName = "[dbo].[Tbl_PorcentajeMix_FormatoCadena]",
+                        DestinationTableName = "[dbo].[Tbl_Porcentaje_AdesConvento]",
                         BulkCopyTimeout = 400
                     };
 
@@ -113,12 +101,9 @@
                     DataTableAddColumn(percentageData.PercentagesTable, "cve_TipoCarga", percentageData.ChargeType);
                     DataTableAddColumn(percentageData.PercentagesTable, "cve_LogArchivo", percentageData.FileLogId);
 
-                    // Mapear columnas en el archivo hacia la tabla.
-                    sqlBulkCopy.ColumnMappings.Add("Canal", "canal");
-                    sqlBulkCopy.ColumnMappings.Add("Filtro", "filtro");
-                    sqlBulkCopy.ColumnMappings.Add("Formato Cadena", "formatoCadena");
+                    sqlBulkCopy.ColumnMappings.Add("AdeS Convento", "adesConvento");
                     sqlBulkCopy.ColumnMappings.Add("Mes", "mes");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje", "porcentaje");
+                    sqlBulkCopy.ColumnMappings.Add("UnitarioConvento", "unitarioConvento");
                     sqlBulkCopy.ColumnMappings.Add("anio", "anio");
                     sqlBulkCopy.ColumnMappings.Add("cve_TipoCarga", "cve_TipoCarga");
                     sqlBulkCopy.ColumnMappings.Add("cve_LogArchivo", "cve_LogArchivo");
@@ -131,7 +116,7 @@
             {
                 successInsert = false;
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("BulkInsertBottler()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("SaveAdesConventPercentage()." + "Error: " + ex.Message);
             }
             finally
             {
@@ -142,20 +127,20 @@
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes base, de acuerdo a un año y tipo de carga específicos.
+        /// Método utilizado para eliminar la información asociada a los porcentajes para distribuir "Ades Dairies" y "Ades Frutal".
         /// </summary>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
         /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public bool DeleteBasePercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        public bool DeleteDairiesFrutalPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
                 SqlCommand sqlcmd = new SqlCommand();
                 StringBuilder query = new StringBuilder();
-                query.Append("DELETE [dbo].[Tbl_PorcentajeBase] WHERE 1 = 1 ");
+                query.Append("DELETE [dbo].[Tbl_Porcentaje_FrutalDairies] WHERE 1 = 1 ");
                 if (yearData.HasValue && yearData.Value > 0)
                 {
                     query.Append(" AND anio = @yearData ");
@@ -185,7 +170,7 @@
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBasePercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteDairiesFrutalPercentage()." + "Error: " + ex.Message);
             }
             finally
             {
@@ -196,20 +181,20 @@
         }
 
         /// <summary>
-        /// Método utilizado para eliminar la información asociada a los porcentajes de asignación por embotellador.
+        /// Método utilizado para eliminar la información del costo unitario de Ades Convento.
         /// </summary>
         /// <param name="yearData">Año de carga.</param>
         /// <param name="chargeTypeData">Tipo de carga.</param>
         /// <param name="fileLogId">Id asociado al archivo que se está cargando.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue eliminada correctamente.</returns>
-        public bool DeleteBottlerPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
+        public bool DeleteAdesConventPercentage(int? yearData = null, int? chargeTypeData = null, int? fileLogId = null)
         {
             bool successDelete = false;
             try
             {
                 SqlCommand sqlcmd = new SqlCommand();
                 StringBuilder query = new StringBuilder();
-                query.Append("DELETE [dbo].[Tbl_PorcentajeMix_FormatoCadena] WHERE 1 = 1 ");
+                query.Append("DELETE [dbo].[Tbl_Porcentaje_AdesConvento] WHERE 1 = 1 ");
                 if (yearData.HasValue && yearData.Value > 0)
                 {
                     query.Append(" AND anio = @yearData ");
@@ -239,7 +224,7 @@
             catch (Exception ex)
             {
                 GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("DeleteBottlerPercentage()." + "Error: " + ex.Message);
+                generalRepository.WriteLog("DeleteAdesConventPercentage()." + "Error: " + ex.Message);
             }
             finally
             {

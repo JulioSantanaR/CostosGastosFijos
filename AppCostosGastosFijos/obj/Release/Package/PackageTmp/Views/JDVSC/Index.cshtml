@@ -54,7 +54,8 @@ else
                         },
                         success: function (response) {
                             $('#logFiles').html(response);
-                            PopulateYears(null, true);
+                            var specificCombo = $('#logFiles').find(".selectYears");
+                            PopulateYears(null, true, specificCombo);
                             HideLoader();
                         }
                     });
@@ -150,12 +151,13 @@ else
          * Función utilizada para cargar la lista de años en los selectores correspondientes.
          * @@param selectCurrentYear Bandera para determinar si seleccionar por default el año actual o no.
          * @@param allYearOption Bandera para saber si agregar la opción de "Todos".
+         * @@param specificCombo Combo específico en donde se quieren agregar los años.
          */
-        function PopulateYears(selectCurrentYear, allYearOption) {
+        function PopulateYears(selectCurrentYear, allYearOption, specificCombo) {
             selectCurrentYear = selectCurrentYear || false;
             allYearOption = allYearOption || false;
             var currentYear = new Date().getFullYear(),
-                selectYear = $(".selectYears");
+                selectYear = specificCombo || $(".selectYears");
             if (allYearOption) {
                 var allOptionHtml = '<option value="">Todos</option>';
                 selectYear.append(allOptionHtml);
@@ -181,7 +183,8 @@ else
                     yearId = chargeInformation.yearId,
                     chargeTypeId = chargeInformation.chargeTypeId,
                     includeArea = chargeInformation.includeArea,
-                    includeChargeTypeName = chargeInformation.includeChargeTypeName;
+                    includeChargeTypeName = chargeInformation.includeChargeTypeName,
+                    includeFileType = chargeInformation.includeFileType;
                 $(chargeFileInput).fileinput({
                     theme: "explorer",
                     language: "es",
@@ -252,6 +255,10 @@ else
 
                         if (includeChargeTypeName) {
                             obj.chargeTypeName = $(chargeTypeId).length > 0 ? $(chargeTypeId + " option:selected").text() : "";
+                        }
+
+                        if (includeFileType) {
+                            obj.fileTypeName = $("#fileTypeData").length > 0 ? $("#fileTypeData option:selected").text() : "";
                         }
 
                         return obj;
