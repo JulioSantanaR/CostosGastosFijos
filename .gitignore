@@ -8,4 +8,7 @@ Data/bin/*
 Data/obj/*
 Business/bin/*
 Business/obj/*
+AppCostosGastosFijos/obj/*
+AppCostosGastosFijos/bin/*
+.vs/*
 .vs

@@ -133,9 +133,7 @@
                             {
                                 int yearAccounts = accountsData.YearAccounts;
                                 int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
-                                string chargeTypeName = accountsData.ChargeTypeName;
-                                chargeTypeName = chargeTypeName.ToLower();
-                                chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
+                                string chargeTypeName = CommonService.GetExerciseType(accountsData.ChargeTypeName);
                                 successProcess = LogProjectionService.SaveOrUpdateLogProjection(yearAccounts, chargeTypeAccounts, chargeTypeName);
                             }
                         }
@@ -203,6 +201,7 @@
             try
             {
                 BudgetDAO budgetDao = new BudgetDAO();
+                accountsData.FileData = CommonService.RemoveWhiteSpaces(accountsData.FileData); 
                 successInsert = budgetDao.InsertManualBudget(accountsData);
             }
             catch (Exception ex)

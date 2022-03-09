@@ -173,6 +173,7 @@
                     sqlBulkCopy.ColumnMappings.Add("Cuenta", "cuenta");
                     sqlBulkCopy.ColumnMappings.Add("Segmento", "segmento");
                     sqlBulkCopy.ColumnMappings.Add("Filtro", "filtro");
+                    sqlBulkCopy.ColumnMappings.Add("Canal", "canal");
                     sqlBulkCopy.ColumnMappings.Add("Enero", "enero");
                     sqlBulkCopy.ColumnMappings.Add("Febrero", "febrero");
                     sqlBulkCopy.ColumnMappings.Add("Marzo", "marzo");
@@ -186,57 +187,6 @@
                     sqlBulkCopy.ColumnMappings.Add("Noviembre", "noviembre");
                     sqlBulkCopy.ColumnMappings.Add("Diciembre", "diciembre");
 
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Enero", "modernoUHTEnero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Febrero", "modernoUHTFebrero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Marzo", "modernoUHTMarzo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Abril", "modernoUHTAbril");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Mayo", "modernoUHTMayo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Junio", "modernoUHTJunio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Julio", "modernoUHTJulio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Agosto", "modernoUHTAgosto");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Septiembre", "modernoUHTSeptiembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Octubre", "modernoUHTOctubre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Noviembre", "modernoUHTNoviembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno UHT Diciembre", "modernoUHTDiciembre");
-
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Enero", "modernoVADEnero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Febrero", "modernoVADFebrero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Marzo", "modernoVADMarzo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Abril", "modernoVADAbril");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Mayo", "modernoVADMayo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Junio", "modernoVADJunio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Julio", "modernoVADJulio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Agosto", "modernoVADAgosto");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Septiembre", "modernoVADSeptiembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Octubre", "modernoVADOctubre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Noviembre", "modernoVADNoviembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Moderno VAD Diciembre", "modernoVADDiciembre");
-
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Enero", "embotelladorEnero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Febrero", "embotelladorFebrero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Marzo", "embotelladorMarzo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Abril", "embotelladorAbril");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Mayo", "embotelladorMayo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Junio", "embotelladorJunio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Julio", "embotelladorJulio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Agosto", "embotelladorAgosto");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Septiembre", "embotelladorSeptiembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Octubre", "embotelladorOctubre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Noviembre", "embotelladorNoviembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Embotellador Diciembre", "embotelladorDiciembre");
-
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Enero", "tiendasEnero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Febrero", "tiendasFebrero");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Marzo", "tiendasMarzo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Abril", "tiendasAbril");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Mayo", "tiendasMayo");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Junio", "tiendasJunio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Julio", "tiendasJulio");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Agosto", "tiendasAgosto");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Septiembre", "tiendasSeptiembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Octubre", "tiendasOctubre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Noviembre", "tiendasNoviembre");
-                    sqlBulkCopy.ColumnMappings.Add("Porcentaje Tiendas Diciembre", "tiendasDiciembre");
                     sqlBulkCopy.WriteToServer(accountsData.FileData);
                     successInsert = true;
                 }
