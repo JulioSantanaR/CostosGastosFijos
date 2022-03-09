@@ -84,6 +84,7 @@
                     int yearData = percentageData.YearData;
                     int chargeTypeId = percentageData.ChargeType;
                     int fileLogId = percentageData.FileLogId;
+                    string portafolio = percentageData.Portafolio;
 
                     // Guardar la información de los porcentajes base para asignación por canal.
                     successProcess = BulkInsertBaseChannel(baseChannelTbl, yearData, chargeTypeId, fileLogId);
@@ -94,7 +95,7 @@
                         string chargeTypeName = percentageData.ChargeTypeName;
                         chargeTypeName = chargeTypeName.ToLower();
                         chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
-                        successProcess = SaveManualChannelPercentage(yearData, chargeTypeId, chargeTypeName, fileLogId, "Stills");
+                        successProcess = SaveManualChannelPercentage(yearData, chargeTypeId, chargeTypeName, fileLogId, portafolio);
                     }
                 }
             }

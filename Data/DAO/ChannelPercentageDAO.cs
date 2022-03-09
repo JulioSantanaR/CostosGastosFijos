@@ -38,7 +38,7 @@
             try
             {
                 Open();
-                SqlCommand sqlcmd = new SqlCommand("usp_InsertarPorcentajesCanales", Connection);
+                SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_InsertarPorcentaje_Canal_Auto]", Connection);
                 sqlcmd.CommandType = CommandType.StoredProcedure;
                 sqlcmd.Parameters.AddWithValue("@anio", yearAccounts);
                 sqlcmd.Parameters.AddWithValue("@tipo_carga", chargeTypeAccounts);

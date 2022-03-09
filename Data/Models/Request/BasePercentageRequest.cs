@@ -42,5 +42,10 @@
         /// Id asociado al archivo cargado.
         /// </summary>
         public int FileLogId { get; set; }
+
+        /// <summary>
+        /// Portafolio/clasificación del porcentaje.
+        /// </summary>
+        public string Portafolio { get; set; }
     }
 }

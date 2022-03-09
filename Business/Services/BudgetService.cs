@@ -66,9 +66,6 @@
                             }
                             else
                             {
-                                // Insertar los porcentajes para cada canal.
-                                successProcess = ChannelPercentageService.InsertChannelPercentages(yearAccounts, chargeTypeAccounts, chargeTypeName);
-
                                 // Actualizar la tabla de hechos de las cuentas/cecos.
                                 if (successProcess)
                                 {

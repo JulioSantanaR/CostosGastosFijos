@@ -84,6 +84,7 @@
                                 }
                                 else if (tblColumns.All(str => channelCol.Contains(str.ColumnName)))
                                 {
+                                    percentageData.Portafolio = "Stills";
                                     successProcess = ChannelPercentageService.SaveChannelPercentage(percentageData); // Guardar el porcentaje Asignación Canal.
                                 }
                                 else
