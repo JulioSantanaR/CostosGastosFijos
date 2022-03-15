@@ -86,11 +86,18 @@
                                 }
                             }
 
-                            // Actualizar la tabla de hechos de la proyección para este año y tipo de carga.
+                            string exerciseType = CommonService.GetExerciseType(percentageData.ChargeTypeName);
+
+                            // Actualizar el log asociado a la tabla de hechos de la proyección para este año y tipo de carga.
                             if (successProcess)
                             {
-                                string exerciseType = CommonService.GetExerciseType(percentageData.ChargeTypeName);
                                 successProcess = LogProjectionService.SaveOrUpdateLogProjection(percentageData.YearData, percentageData.ChargeType, exerciseType);
+                            }
+
+                            // Actualizar el log asociado a la tabla de hechos de la asignación por canal para este año y tipo de carga.
+                            if (successProcess)
+                            {
+                                successProcess = LogChannelAssignService.SaveOrUpdateLogChannel(percentageData.YearData, percentageData.ChargeType, exerciseType);
                             }
                         }
                     }

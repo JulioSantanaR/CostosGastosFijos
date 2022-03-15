@@ -52,7 +52,7 @@
     <Compile Include="DAO\AdesPercentageDAO.cs" />
     <Compile Include="DAO\AreasDAO.cs" />
     <Compile Include="DAO\LacteosPercentagesDAO.cs" />
-    <Compile Include="DAO\LogProjectionDAO.cs" />
+    <Compile Include="DAO\LogFactDAO.cs" />
     <Compile Include="DAO\StillsPercentageDAO.cs" />
     <Compile Include="DAO\MixBrandPercentageDAO.cs" />
     <Compile Include="DAO\BudgetDAO.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="Models\ChargeType.cs" />
     <Compile Include="Models\FileLogData.cs" />
     <Compile Include="Models\FileType.cs" />
-    <Compile Include="Models\LogProjection.cs" />
+    <Compile Include="Models\LogFactData.cs" />
     <Compile Include="Models\PromotoriaDB.cs" />
     <Compile Include="Models\PromotoriaFile.cs" />
     <Compile Include="Models\Request\AccountsDataRequest.cs" />

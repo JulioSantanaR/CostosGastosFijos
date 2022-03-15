@@ -342,7 +342,7 @@
                 if (accountsData != null)
                 {
                     Open();
-                    SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_InsertarTblHechos_Manual]", Connection);
+                    SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_InsertarFact_AsignacionCanal_Manual]", Connection);
                     sqlcmd.CommandType = CommandType.StoredProcedure;
                     sqlcmd.Parameters.AddWithValue("@anio", accountsData.YearAccounts);
                     sqlcmd.Parameters.AddWithValue("@tipo_carga", accountsData.ChargeTypeAccounts);
@@ -440,50 +440,16 @@
                 if (accountsData != null)
                 {
                     Open();
-                    SqlCommand sqlcmd = new SqlCommand("usp_ActualizarTblHechos", Connection);
+                    SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_ActualizarFact_AsignacionCanal]", Connection);
                     sqlcmd.CommandType = CommandType.StoredProcedure;
                     sqlcmd.Parameters.AddWithValue("@anio", accountsData.YearAccounts);
                     sqlcmd.Parameters.AddWithValue("@tipo_carga", accountsData.ChargeTypeAccounts);
-                    sqlcmd.Parameters.AddWithValue("@colaborador", accountsData.Collaborator);
-                    sqlcmd.Parameters.AddWithValue("@area", accountsData.Area);
                     sqlcmd.Parameters.AddWithValue("@tipoEjercicio", accountsData.ExerciseType);
-                    sqlcmd.Parameters.AddWithValue("@logArchivo", accountsData.FileLogId);
                     sqlcmd.CommandTimeout = 3600;
                     sqlcmd.ExecuteNonQuery();
                     Close();
                     successUpdate = true;
                 }
-            }
-            catch (Exception ex)
-            {
-                successUpdate = false;
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UpdateFactTblAccounts()." + "Error: " + ex.Message);
-            }
-
-            return successUpdate;
-        }
-
-        /// <summary>
-        /// Método utilizado para actualizar los montos debido a la carga de volumen de un BP/Rolling 0+12.
-        /// </summary>
-        /// <param name="yearAccounts">Año de carga.</param>
-        /// <param name="chargeTypeAccounts">Tipo de carga.</param>
-        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta o no.</returns>
-        public bool UpdateFactTblBP(int yearAccounts, int chargeTypeAccounts)
-        {
-            bool successUpdate = false;
-            try
-            {
-                Open();
-                SqlCommand sqlcmd = new SqlCommand("usp_ActualizarTblHechos_BP", Connection);
-                sqlcmd.CommandType = CommandType.StoredProcedure;
-                sqlcmd.Parameters.AddWithValue("@anio", yearAccounts);
-                sqlcmd.Parameters.AddWithValue("@tipo_carga", chargeTypeAccounts);
-                sqlcmd.CommandTimeout = 3600;
-                sqlcmd.ExecuteNonQuery();
-                Close();
-                successUpdate = true;
             }
             catch (Exception ex)
             {
@@ -508,7 +474,7 @@
             try
             {
                 Open();
-                SqlCommand sqlcmd = new SqlCommand("usp_ActualizarProyeccion", Connection);
+                SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_ActualizarFact_Proyeccion]", Connection);
                 sqlcmd.CommandType = CommandType.StoredProcedure;
                 sqlcmd.Parameters.AddWithValue("@anio", yearAccounts);
                 sqlcmd.Parameters.AddWithValue("@tipo_carga", chargeTypeAccounts);

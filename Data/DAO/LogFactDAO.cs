@@ -9,9 +9,9 @@
     using Data.Models;
 
     /// <summary>
-    /// Clase asociada al acceso a datos para manipular la información asociada al log auxiliar en la actualización de las proyecciones.
+    /// Clase asociada al acceso a datos para manipular la información asociada al log auxiliar en la actualización de las tablas de hechos.
     /// </summary>
-    public class LogProjectionDAO : CommonDAO
+    public class LogFactDAO : CommonDAO
     {
         /// <summary>
         /// Cadena de conexión asociada a la Base de Datos de Costos y Gastos fijos.
@@ -19,33 +19,38 @@
         private readonly string connectionString = ConfigurationManager.ConnectionStrings["dbCGFijos"].ToString();
 
         /// <summary>
-        /// Columnas asociadas a la tabla "Tbl_Log_FactProyeccion".
-        /// </summary>
-        private readonly string[] ProjectionFields = new string[] { "cve_LogFactProyeccion", "tipoCarga", "cve_TipoCarga", "anio", "estatus", "fechaActualizacion" };
-
-        /// <summary>
         /// Constructor default de la clase.
         /// </summary>
-        public LogProjectionDAO()
+        public LogFactDAO()
         {
             ConnectionString = connectionString;
         }
 
         /// <summary>
-        /// Método utilizado para recuperar la información de un registro dentro del log asociado a la tabla de hechos de la proyección.
+        /// Columnas asociadas a la tabla en la Base de Datos.
+        /// </summary>
+        public string[] LogTableFields { get; set; }
+
+        /// <summary>
+        /// Nombre asociado a la tabla en la Base de Datos.
+        /// </summary>
+        public string LogTableName { get; set; }
+
+        /// <summary>
+        /// Método utilizado para recuperar la información de un registro dentro del log asociado a la tabla de hechos.
         /// </summary>
         /// <param name="chargeTypeId">Id asociado al tipo de carga.</param>
         /// <param name="yearData">Año de carga.</param>
         /// <returns>Devuelve la información del log asociado a la tabla de hechos, de acuerdo a los parámetros de búsqueda.</returns>
-        public LogProjectionData GetLogProjection(int? chargeTypeId, int? yearData)
+        public LogFactData GetLogFact(int? chargeTypeId, int? yearData)   
         {
-            LogProjectionData logProjection = null;
+            LogFactData logProjection = null;
             try
             {
                 SqlCommand sqlcmd = new SqlCommand();
                 StringBuilder query = new StringBuilder();
-                query.Append("SELECT ").Append(string.Join(",", ProjectionFields));
-                query.Append(" FROM [dbo].[Tbl_Log_FactProyeccion] ");
+                query.Append("SELECT ").Append(string.Join(",", LogTableFields));
+                query.Append(" FROM ").Append(LogTableName);
                 query.Append(" WHERE 1 = 1 ");
                 if (chargeTypeId.HasValue && chargeTypeId.Value > 0)
                 {
@@ -66,7 +71,7 @@
                 var reader = sqlcmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    logProjection = Mapping.MapLogProjection(reader);
+                    logProjection = Mapping.MapLogFact(reader);
                 }
 
                 reader.Close();
@@ -84,14 +89,14 @@
         /// Método utilizado para recuperar la lista de proyecciones o ejercicios que no han sido actualizados en la aplicación.
         /// </summary>
         /// <returns>Devuelve la lista de proyecciones pendientes de actualizar.</returns>
-        public List<LogProjectionData> GetPendingProjections()
+        public List<LogFactData> GetPendingFact()
         {
-            List<LogProjectionData> pendingProjections = new List<LogProjectionData>();
+            List<LogFactData> pendingProjections = new List<LogFactData>();
             try
             {
                 StringBuilder query = new StringBuilder();
-                query.Append("SELECT ").Append(string.Join(",", ProjectionFields));
-                query.Append(" FROM [dbo].[Tbl_Log_FactProyeccion] ");
+                query.Append("SELECT ").Append(string.Join(",", LogTableFields));
+                query.Append(" FROM ").Append(LogTableName);
                 query.Append(" WHERE estatus = 0 ");
                 Open();
                 SqlCommand sqlcmd = new SqlCommand
@@ -103,7 +108,7 @@
                 var reader = sqlcmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    LogProjectionData singleProjection = Mapping.MapLogProjection(reader);
+                    LogFactData singleProjection = Mapping.MapLogFact(reader);
                     pendingProjections.Add(singleProjection);
                 }
 
@@ -119,11 +124,11 @@
         }
 
         /// <summary>
-        /// Método utilizado para guardar la información asociada al log de la tabla de hechos de la proyección.
+        /// Método utilizado para guardar la información asociada al log de la tabla de hechos.
         /// </summary>
-        /// <param name="logProjection">Objeto que contiene la información del log asociado a la tabla de hechos de la proyección.</param>
+        /// <param name="logProjection">Objeto que contiene la información del log asociado a la tabla de hechos.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue guardada correctamente.</returns>
-        public int SaveLogProjection(LogProjectionData logProjection)
+        public int SaveLogFact(LogFactData logProjection)
         {
             int logProjectionId = 0;
             try
@@ -131,7 +136,8 @@
                 if (logProjection != null)
                 {
                     StringBuilder query = new StringBuilder();
-                    query.Append("INSERT INTO [dbo].[Tbl_Log_FactProyeccion] VALUES (@chargeType, @chargeTypeId, @yearData, @status, @date); ");
+                    query.Append(" INSERT INTO ").Append(LogTableName);
+                    query.Append(" VALUES (@chargeType, @chargeTypeId, @yearData, @status, @date); ");
                     query.Append(" SELECT SCOPE_IDENTITY(); ");
                     Open();
                     SqlCommand sqlcmd = new SqlCommand
@@ -158,19 +164,20 @@
         }
 
         /// <summary>
-        /// Método utilizado para actualizar la información asociada al log de la tabla de hechos de la proyección.
+        /// Método utilizado para actualizar la información asociada al log de la tabla de hechos.
         /// </summary>
-        /// <param name="logProjection">Objeto que contiene la información del log asociado a la tabla de hechos de la proyección.</param>
+        /// <param name="logProjection">Objeto que contiene la información del log asociado a la tabla de hechos.</param>
         /// <returns>Devuelve una bandera para determinar si la información fue actualizada correctamente.</returns>
-        public bool UpdateLogProjection(LogProjectionData logProjection)
+        public bool UpdateLogFact(LogFactData logProjection)
         {
             bool successUpdate = false;
             try
             {
                 StringBuilder query = new StringBuilder();
-                query.Append("UPDATE [dbo].[Tbl_Log_FactProyeccion] SET tipoCarga = @chargeType, cve_TipoCarga = @chargeTypeId, ");
+                query.Append(" UPDATE ").Append(LogTableName);
+                query.Append(" SET tipoCarga = @chargeType, cve_TipoCarga = @chargeTypeId, ");
                 query.Append(" anio = @yearData, estatus = @status, fechaActualizacion = @date ");
-                query.Append(" WHERE cve_LogFactProyeccion = @logProjectionId");
+                query.Append(" WHERE cve_LogFactId = @logProjectionId");
                 Open();
                 SqlCommand sqlcmd = new SqlCommand
                 {
@@ -183,7 +190,7 @@
                 sqlcmd.Parameters.AddWithValue("@yearData", logProjection.YearData);
                 sqlcmd.Parameters.AddWithValue("@status", logProjection.ProjectionStatus);
                 sqlcmd.Parameters.AddWithValue("@date", logProjection.DateActualization);
-                sqlcmd.Parameters.AddWithValue("@logProjectionId", logProjection.LogFactProjectionId);
+                sqlcmd.Parameters.AddWithValue("@logProjectionId", logProjection.LogFactId);
                 sqlcmd.ExecuteNonQuery();
                 Close();
                 successUpdate = true;

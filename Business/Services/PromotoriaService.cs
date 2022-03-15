@@ -67,13 +67,11 @@
                                 {
                                     // Insertar la información de la promotoria.
                                     responseFlag = BulkInsertPromotoria(fileData, yearData, chargeTypeData, fileLogId);
+
+                                    // Actualizar el log asociado a la tabla de hechos de la proyección para este año y tipo de carga.
                                     if (responseFlag)
                                     {
-                                        chargeTypeName = chargeTypeName.ToLower();
-                                        bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
-                                        string exerciseType = bpExercise ? "BP" : "Rolling";
-
-                                        // Actualizar la tabla de hechos de la proyección para este año y tipo de carga.
+                                        string exerciseType = CommonService.GetExerciseType(chargeTypeName);
                                         responseFlag = LogProjectionService.SaveOrUpdateLogProjection(yearData, chargeTypeData, exerciseType);
                                     }
                                     else

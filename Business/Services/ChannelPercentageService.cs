@@ -92,9 +92,7 @@
                     // Realizar el cálculo de los porcentajes por canal/portafolio.
                     if (successProcess)
                     {
-                        string chargeTypeName = percentageData.ChargeTypeName;
-                        chargeTypeName = chargeTypeName.ToLower();
-                        chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
+                        string chargeTypeName = CommonService.GetExerciseType(percentageData.ChargeTypeName);
                         successProcess = SaveManualChannelPercentage(yearData, chargeTypeId, chargeTypeName, fileLogId, portafolio);
                     }
                 }

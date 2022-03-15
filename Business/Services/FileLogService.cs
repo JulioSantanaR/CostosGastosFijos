@@ -49,9 +49,22 @@
                 {
                     int logFileId = deleteFileRequest.LogFileId;
                     string logFileType = deleteFileRequest.LogFileType;
+                    string chargeTypeName = CommonService.GetExerciseType(deleteFileRequest.ChargeTypeName);
                     AccountsDataRequest accountsData = new AccountsDataRequest() { FileLogId = logFileId };
                     switch (logFileType)
                     {
+                        case "Volumen":
+                            if (chargeTypeName == "BP")
+                            {
+                                successDelete = VolumeService.DeleteVolumeBP(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData);
+                            }
+                            else if (chargeTypeName == "Rolling")
+                            {
+                                successDelete = VolumeService.DeleteVolume(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData);
+                            }
+
+                            break;
+
                         case "Presupuesto":
                             successDelete = BudgetService.FactTableDeleteAccounts(accountsData);
                             if (successDelete)
@@ -135,10 +148,13 @@
                         // Actualizar la tabla de hechos de la proyección para este año y tipo de carga.
                         if (successDelete)
                         {
-                            string chargeTypeName = deleteFileRequest.ChargeTypeName.ToLower();
-                            bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
-                            string exerciseType = bpExercise ? "BP" : "Rolling";
-                            LogProjectionService.SaveOrUpdateLogProjection(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData, exerciseType);
+                            successDelete = LogProjectionService.SaveOrUpdateLogProjection(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData, chargeTypeName);
+                        }
+
+                        // Actualizar el log asociado a la tabla de hechos de la asignación por canal para este año y tipo de carga.
+                        if (successDelete)
+                        {
+                            successDelete = LogChannelAssignService.SaveOrUpdateLogChannel(deleteFileRequest.YearData, deleteFileRequest.ChargeTypeData, chargeTypeName);
                         }
                     }
                 }

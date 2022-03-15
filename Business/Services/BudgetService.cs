@@ -29,7 +29,6 @@
             {
                 if (accountsData != null)
                 {
-                    string chargeTypeName = accountsData.ChargeTypeName;
                     int yearAccounts = accountsData.YearAccounts;
                     int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
 
@@ -54,9 +53,6 @@
                         successProcess = InsertAccounts(accountsData);
                         if (successProcess)
                         {
-                            chargeTypeName = chargeTypeName.ToLower();
-                            chargeTypeName = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan" ? "BP" : "Rolling";
-
                             // Revisar si existen cuentas que no estén completas en el BIF.
                             notFoundAccounts = GetNotFoundAccountsBIF(accountsData);
                             if (notFoundAccounts != null && notFoundAccounts.Count > 0)
@@ -66,11 +62,11 @@
                             }
                             else
                             {
-                                // Actualizar la tabla de hechos de las cuentas/cecos.
+                                // Actualizar el log asociado a la tabla de hechos de la asignación por canal para este año y tipo de carga.
                                 if (successProcess)
                                 {
-                                    accountsData.ExerciseType = chargeTypeName;
-                                    successProcess = UpdateFactTblAccounts(accountsData);
+                                    string chargeTypeName = CommonService.GetExerciseType(accountsData.ChargeTypeName);
+                                    successProcess = LogChannelAssignService.SaveOrUpdateLogChannel(accountsData.YearAccounts, accountsData.ChargeTypeAccounts, chargeTypeName);
                                 }
                             }
                         }
@@ -127,15 +123,6 @@
                         {
                             // Insertar la información en la tabla de hechos de las cuentas/cecos.
                             successProcess = SaveFactAccountsManual(accountsData);
-
-                            // Actualizar la tabla de hechos de la proyección.
-                            if (successProcess)
-                            {
-                                int yearAccounts = accountsData.YearAccounts;
-                                int chargeTypeAccounts = accountsData.ChargeTypeAccounts;
-                                string chargeTypeName = CommonService.GetExerciseType(accountsData.ChargeTypeName);
-                                successProcess = LogProjectionService.SaveOrUpdateLogProjection(yearAccounts, chargeTypeAccounts, chargeTypeName);
-                            }
                         }
                     }
                 }
@@ -314,29 +301,6 @@
             {
                 GeneralRepository generalRepository = new GeneralRepository();
                 generalRepository.WriteLog("UpdateFactTblAccounts()." + "Error: " + ex.Message);
-            }
-
-            return successUpdate;
-        }
-
-        /// <summary>
-        /// Método utilizado para actualizar los montos debido a la carga de volumen de un BP/Rolling 0+12.
-        /// </summary>
-        /// <param name="yearAccounts">Año de carga.</param>
-        /// <param name="chargeTypeAccounts">Tipo de carga.</param>
-        /// <returns>Devuelve una bandera para determinar si la actualización fue correcta o no.</returns>
-        public static bool UpdateFactTblBP(int yearAccounts, int chargeTypeAccounts)
-        {
-            bool successUpdate = false;
-            try
-            {
-                BudgetDAO budgetDao = new BudgetDAO();
-                successUpdate = budgetDao.UpdateFactTblBP(yearAccounts, chargeTypeAccounts);
-            }
-            catch (Exception ex)
-            {
-                GeneralRepository generalRepository = new GeneralRepository();
-                generalRepository.WriteLog("UpdateFactTblBP()." + "Error: " + ex.Message);
             }
 
             return successUpdate;

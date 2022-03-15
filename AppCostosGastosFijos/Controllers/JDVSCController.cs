@@ -293,10 +293,13 @@
             bool successResponse = false;
             try
             {
-                string jobName = "JDV_CGFijos";
-                string jobId = "B8485C8B-52FC-49A8-9EAD-24D5D24F1FE1";
-                CubeService.UpdateCube(jobName, jobId);
-                successResponse = true;
+                successResponse = CubeService.UpdateChannelAssignTbl();
+                if (successResponse)
+                {
+                    string jobName = "JDV_CGFijos";
+                    string jobId = "B8485C8B-52FC-49A8-9EAD-24D5D24F1FE1";
+                    successResponse = CubeService.UpdateCube(jobName, jobId);
+                }
             }
             catch (Exception ex)
             {

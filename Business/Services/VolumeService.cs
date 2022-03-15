@@ -35,8 +35,6 @@
                     var accountsTable = CommonService.ReadFile(fileInfo.InputStream, fileExtension);
                     if (accountsTable.Tables.Count > 0)
                     {
-                        string exerciseType = string.Empty;
-
                         // Guardar la información del archivo que se está cargando.
                         FileLogData fileLogData = new FileLogData()
                         {
@@ -52,35 +50,21 @@
                         int fileLogId = FileLogService.SaveFileLog(fileLogData);
                         if (fileLogId != 0)
                         {
-                            chargeTypeName = chargeTypeName.ToLower();
-                            bool bpExercise = chargeTypeName == "rolling 0+12" || chargeTypeName == "business plan";
-                            if (bpExercise)
-                            {
-                                exerciseType = "BP";
-                                successProcess = DeleteVolumeBP(yearData, chargeTypeData);
-                                if (successProcess)
-                                {
-                                    successProcess = BulkInsertVolumenBP(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId);
-                                    if (successProcess)
-                                    {
-                                        successProcess = BudgetService.UpdateFactTblBP(yearData, chargeTypeData);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                exerciseType = "Rolling";
-                                successProcess = DeleteVolume(yearData, chargeTypeData);
-                                if (successProcess)
-                                {
-                                    successProcess = BulkInsertVolumen(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId);
-                                }
-                            }
+                            string exerciseType = CommonService.GetExerciseType(chargeTypeName);
+                            successProcess = exerciseType == "BP" 
+                                ? BulkInsertVolumenBP(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId)
+                                : BulkInsertVolumen(accountsTable.Tables[0], yearData, chargeTypeData, fileLogId);
 
-                            // Actualizar la tabla de hechos de la proyección.
+                            // Actualizar el log asociado a la tabla de hechos de la proyección para este año y tipo de carga.
                             if (successProcess)
                             {
                                 successProcess = LogProjectionService.SaveOrUpdateLogProjection(yearData, chargeTypeData, exerciseType);
+                            }
+
+                            // Actualizar el log asociado a la tabla de hechos de la asignación por canal para este año y tipo de carga.
+                            if (successProcess)
+                            {
+                                successProcess = LogChannelAssignService.SaveOrUpdateLogChannel(yearData, chargeTypeData, exerciseType);
                             }
                         }
                     }

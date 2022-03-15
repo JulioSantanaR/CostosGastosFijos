@@ -5,12 +5,12 @@
     /// <summary>
     /// Objeto que contiene la información del log asociado a la tabla de hechos de la proyección.
     /// </summary>
-    public class LogProjectionData
+    public class LogFactData
     {
         /// <summary>
-        /// Id asociado al log de la tabla de hechos de la proyección.
+        /// Id asociado al log de la tabla de hechos.
         /// </summary>
-        public int LogFactProjectionId { get; set; }
+        public int LogFactId { get; set; }
 
         /// <summary>
         /// Tipo de carga.
