@@ -148,23 +148,18 @@
             List<PromotoriaDB> promotoria = new List<PromotoriaDB>();
             try
             {
-                StringBuilder query = new StringBuilder();
-                query.Append("SELECT mes, SUM(presupuesto) AS presupuesto FROM [dbo].[Fact_CostosGastosFijos] ");
-                query.Append("WHERE (filtro COLLATE Latin1_general_CI_AI) LIKE '%promotoria%' ");
-                query.Append("AND cve_TipoCarga = @chargeTypeData AND anio = @yearData GROUP BY mes ");
                 Open();
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Connection = Connection;
-                sqlcmd.CommandType = CommandType.Text;
-                sqlcmd.CommandText = query.ToString();
-                sqlcmd.Parameters.AddWithValue("@chargeTypeData", chargeTypeData);
-                sqlcmd.Parameters.AddWithValue("@yearData", yearData);
+                SqlCommand sqlcmd = new SqlCommand("[dbo].[usp_ObtenerGastosPromotoria]", Connection);
+                sqlcmd.CommandType = CommandType.StoredProcedure;
+                sqlcmd.Parameters.AddWithValue("@anio", yearData);
+                sqlcmd.Parameters.AddWithValue("@tipo_carga", chargeTypeData);
+                sqlcmd.CommandTimeout = 3600;
                 var reader = sqlcmd.ExecuteReader();
                 while (reader.Read())
                 {
                     PromotoriaDB singleBudget = new PromotoriaDB();
-                    singleBudget.MonthNumber = reader["mes"] != DBNull.Value ? Convert.ToInt32(reader["mes"]) : default(int);
-                    singleBudget.Budget = reader["presupuesto"] != DBNull.Value ? Convert.ToDouble(reader["presupuesto"]) : default(double);
+                    singleBudget.Budget = reader["presupuesto"] != DBNull.Value ? Convert.ToDouble(reader["presupuesto"]) : default;
+                    singleBudget.MonthNumber = reader["mes"] != DBNull.Value ? Convert.ToInt32(reader["mes"]) : 0;
                     promotoria.Add(singleBudget);
                 }
 
